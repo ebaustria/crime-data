@@ -1,4 +1,4 @@
-import React, {useRef, useEffect, useState, useMemo} from "react";
+import React, {useEffect, useState, useMemo} from "react";
 import Papa from "papaparse";
 import Map, {Layer, Source} from 'react-map-gl';
 import "./styles/App.css";
@@ -9,8 +9,8 @@ import {NeighborhoodCrime} from "./models";
 function App() {
     const [lng, setLng] = useState(13.7373);
     const [lat, setLat] = useState(51.0504);
-    const [zoom, setZoom] = useState(11);
-    const [year, setYear] = useState(2015);
+    const [zoom, setZoom] = useState(9.75);
+    const [year, setYear] = useState(2020);
     const [allData, setAllData] = useState(undefined);
     const [crimeData, setCrimeData] = useState<NeighborhoodCrime | undefined>(undefined);
     const [hoverInfo, setHoverInfo] = useState(null);
@@ -29,7 +29,9 @@ function App() {
                     const totalCases = element["Fälle erfasst"];
                     // @ts-ignore
                     const solvedCases = element["Fälle aufgeklärt"];
-                    tempCrimeData[key] = {totalCases, solvedCases};
+                    // @ts-ignore
+                    const suspects = element["Tatverdächtige"];
+                    tempCrimeData[key] = {totalCases, solvedCases, suspects};
                 });
                 setCrimeData(tempCrimeData);
             }
@@ -54,7 +56,7 @@ function App() {
                 initialViewState={{
                   longitude: lng,
                   latitude: lat,
-                  zoom: 9.75
+                  zoom: zoom
                 }}
                 style={{width: 800, height: 500}}
                 mapStyle="mapbox://styles/mapbox/streets-v11"
