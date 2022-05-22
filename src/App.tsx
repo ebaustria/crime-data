@@ -1,4 +1,5 @@
 import React, {useRef, useEffect, useState, useMemo} from "react";
+import Papa from "papaparse";
 import Map, {Layer, Source} from 'react-map-gl';
 import "./App.css";
 import {dataLayer} from "./map-style";
@@ -14,6 +15,12 @@ function App() {
     const MAPBOX_TOKEN = "pk.eyJ1IjoiZXJpY2J1c2giLCJhIjoiY2thcXVzMGszMmJhZjMxcDY2Y2FrdXkwMSJ9.cwBqtbXpWJbtAEGli1AIIg";
 
     useEffect(() => {
+        // Papa.parse("../data/neighborhoods_crime_2020.csv", {
+        //     download: true,
+        //     complete: function(results) {
+        //         console.log("RESULTS: ", results);
+        //     }
+        // });
         /* global fetch */
         fetch(
             "https://raw.githubusercontent.com/offenesdresden/GeoData/master/Stadtteile-Dresden.geojson"
