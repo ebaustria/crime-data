@@ -5,7 +5,6 @@ import "./styles/App.css";
 import {dataLayer} from "./map-style";
 import {updatePercentiles} from "./utils";
 import {NeighborhoodCrime, RawCrimeData, YearlyData} from "./models";
-import type GeoJSON from 'geojson';
 
 function App() {
     const [lng, setLng] = useState(13.7373);
@@ -16,14 +15,19 @@ function App() {
     const [allCrimeData, setAllCrimeData] = useState<RawCrimeData[] | undefined>(undefined);
     const [yearlyData, setYearlyData] = useState<YearlyData | undefined>(undefined);
     const [hoverInfo, setHoverInfo] = useState(null);
+
+    // This token is needed to display the map.
     const MAPBOX_TOKEN = "pk.eyJ1IjoiZXJpY2J1c2giLCJhIjoiY2thcXVzMGszMmJhZjMxcDY2Y2FrdXkwMSJ9.cwBqtbXpWJbtAEGli1AIIg";
 
     useEffect(() => {
+        // Load the crime data for Dresden's neighborhoods.
         Papa.parse("https://raw.githubusercontent.com/ebaustria/crime-data/main/data/neighborhoods_crime.csv", {
             header: true,
             download: true,
             complete: function(results) {
                 const tempCrimeData: NeighborhoodCrime = {};
+
+                // Save the complete data set in a variable so we can use it for static diagrams and other things.
                 setAllCrimeData(results.data as RawCrimeData[]);
 
                 // @ts-ignore
@@ -39,10 +43,14 @@ function App() {
                         const suspects = item["Tatverdächtige"];
                         tempCrimeData[key] = {totalCases, solvedCases, suspects};
                     });
+
+                // Save the data for 2020 in a variable since we will start the application with 2020 as the only
+                // selected year.
                 setYearlyData({"2020": tempCrimeData});
             }
         });
-        /* global fetch */
+
+        // Fetch the GeoJSON data for Dresden's neighborhoods. This is needed to draw the polygons on the map.
         fetch(
             "https://raw.githubusercontent.com/offenesdresden/GeoData/master/Stadtteile-Dresden.geojson"
         )

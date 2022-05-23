@@ -1,6 +1,6 @@
 import type {FillLayer} from 'react-map-gl';
 
-// For more information on data-driven styles, see https://www.mapbox.com/help/gl-dds-ref/
+/** Color scale for the percentiles of the crime statistics */
 export const dataLayer: FillLayer = {
     id: 'data',
     type: 'fill',

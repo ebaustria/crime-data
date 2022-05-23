@@ -4,6 +4,7 @@ import {scaleQuantile} from 'd3-scale';
 import type GeoJSON from 'geojson';
 import {YearlyData} from "./models";
 
+/** Calculates percentiles of administrative districts (neighborhoods, city districts, etc.) for a given crime statistic. */
 export function updatePercentiles(
     featureCollection: GeoJSON.FeatureCollection<GeoJSON.Geometry>,
     accessor: (f: GeoJSON.Feature<GeoJSON.Geometry>) => string[],
@@ -28,17 +29,15 @@ export function updatePercentiles(
     };
 }
 
+/** Finds the total number of occurrences of a given crime statistic in a given neighborhood over one or more years. */
 const getValueForNeighborhood = (neighborhoodNames: string[], crimeData: YearlyData): number => {
-    // TODO Find solution for neighborhoods that aren't covered by this
     let total = 0;
     Object.keys(crimeData).forEach(year => {
+        // We check both "name" and "official_name" in case the name in the crime data matches one but not the other.
         const data = crimeData[year][neighborhoodNames[0]] ?? crimeData[year][neighborhoodNames[1]];
         if (data) {
             total += parseInt(data.totalCases);
         }
     });
-    // if (total === 0) {
-    //     console.log("TOTAL IS 0: ", neighborhoodNames);
-    // }
     return total;
 }
