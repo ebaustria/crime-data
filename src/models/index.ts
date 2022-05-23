@@ -5,3 +5,11 @@ export interface NeighborhoodCrime {
         suspects: string;
     };
 }
+
+export interface YearlyData {
+    [year: string]: NeighborhoodCrime;
+}
+
+export interface RawCrimeData {
+    [key: string]: string;
+}
