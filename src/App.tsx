@@ -5,6 +5,7 @@ import "./styles/App.css";
 import {dataLayer} from "./map-style";
 import {updatePercentiles} from "./utils";
 import {NeighborhoodCrime, RawCrimeData, YearlyData} from "./models";
+import type GeoJSON from 'geojson';
 
 function App() {
     const [lng, setLng] = useState(13.7373);
@@ -18,7 +19,7 @@ function App() {
     const MAPBOX_TOKEN = "pk.eyJ1IjoiZXJpY2J1c2giLCJhIjoiY2thcXVzMGszMmJhZjMxcDY2Y2FrdXkwMSJ9.cwBqtbXpWJbtAEGli1AIIg";
 
     useEffect(() => {
-        Papa.parse("https://raw.githubusercontent.com/ebaustria/crime-data/main/data/neighborhoods_crime_2020.csv", {
+        Papa.parse("https://raw.githubusercontent.com/ebaustria/crime-data/main/data/neighborhoods_crime.csv", {
             header: true,
             download: true,
             complete: function(results) {
@@ -52,7 +53,7 @@ function App() {
 
     const data = useMemo(() => {
         // @ts-ignore
-        return geoData && yearlyData && updatePercentiles(geoData, f => f.properties.name, yearlyData);
+        return geoData && yearlyData && updatePercentiles(geoData, f => [f.properties.name, f.properties.official_name], yearlyData);
     }, [geoData, year, yearlyData]);
 
     return (

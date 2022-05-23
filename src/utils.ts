@@ -6,7 +6,7 @@ import {YearlyData} from "./models";
 
 export function updatePercentiles(
     featureCollection: GeoJSON.FeatureCollection<GeoJSON.Geometry>,
-    accessor: (f: GeoJSON.Feature<GeoJSON.Geometry>) => string,
+    accessor: (f: GeoJSON.Feature<GeoJSON.Geometry>) => string[],
     crimeData: YearlyData
 ): GeoJSON.FeatureCollection<GeoJSON.Geometry> {
     const {features} = featureCollection;
@@ -28,14 +28,17 @@ export function updatePercentiles(
     };
 }
 
-const getValueForNeighborhood = (neighborhood: string, crimeData: YearlyData): number => {
+const getValueForNeighborhood = (neighborhoodNames: string[], crimeData: YearlyData): number => {
     // TODO Find solution for neighborhoods that aren't covered by this
     let total = 0;
     Object.keys(crimeData).forEach(year => {
-        const data = crimeData[year][neighborhood];
+        const data = crimeData[year][neighborhoodNames[0]] ?? crimeData[year][neighborhoodNames[1]];
         if (data) {
             total += parseInt(data.totalCases);
         }
     });
+    // if (total === 0) {
+    //     console.log("TOTAL IS 0: ", neighborhoodNames);
+    // }
     return total;
 }
