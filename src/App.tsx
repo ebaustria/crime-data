@@ -5,6 +5,7 @@ import "./styles/App.css";
 import {dataLayer} from "./map-style";
 import {updatePercentiles} from "./utils";
 import {NeighborhoodCrime, RawCrimeData, YearlyData} from "./models";
+import StatisticSelect from "./components/StatisticSelect";
 
 function App() {
     const [lng, setLng] = useState(13.7373);
@@ -15,6 +16,7 @@ function App() {
     const [allCrimeData, setAllCrimeData] = useState<RawCrimeData[] | undefined>(undefined);
     const [yearlyData, setYearlyData] = useState<YearlyData | undefined>(undefined);
     const [hoverInfo, setHoverInfo] = useState(null);
+    const [selectedStat, setSelectedStat] = useState("totalCases");
 
     // This token is needed to display the map.
     const MAPBOX_TOKEN = "pk.eyJ1IjoiZXJpY2J1c2giLCJhIjoiY2thcXVzMGszMmJhZjMxcDY2Y2FrdXkwMSJ9.cwBqtbXpWJbtAEGli1AIIg";
@@ -40,7 +42,7 @@ function App() {
                         // @ts-ignore
                         const solvedCases = item["Fälle aufgeklärt"];
                         // @ts-ignore
-                        const suspects = item["Tatverdächtige"];
+                        const suspects = item["Tatverdächtige insgesamt"];
                         tempCrimeData[key] = {totalCases, solvedCases, suspects};
                     });
 
@@ -61,25 +63,35 @@ function App() {
 
     const data = useMemo(() => {
         // @ts-ignore
-        return geoData && yearlyData && updatePercentiles(geoData, f => [f.properties.name, f.properties.official_name], yearlyData);
-    }, [geoData, year, yearlyData]);
+        return geoData && yearlyData && updatePercentiles(geoData, f => [f.properties.name, f.properties.official_name], yearlyData, selectedStat);
+    }, [geoData, year, yearlyData, selectedStat]);
 
     return (
         <div className="app-container">
-            <Map
-                initialViewState={{
-                  longitude: lng,
-                  latitude: lat,
-                  zoom: zoom
-                }}
-                style={{width: 800, height: 500}}
-                mapStyle="mapbox://styles/mapbox/streets-v11"
-                mapboxAccessToken={MAPBOX_TOKEN}
-            >
-                <Source type="geojson" data={data}>
-                    <Layer {...dataLayer} />
-                </Source>
-            </Map>
+            <div className="central-container">
+                <Map
+                    initialViewState={{
+                        longitude: lng,
+                        latitude: lat,
+                        zoom: zoom
+                    }}
+                    style={{width: 800, height: 500}}
+                    mapStyle="mapbox://styles/mapbox/streets-v11"
+                    mapboxAccessToken={MAPBOX_TOKEN}
+                >
+                    <Source type="geojson" data={data}>
+                        <Layer {...dataLayer} />
+                    </Source>
+                </Map>
+                <StatisticSelect
+                    onChange={(ev, child) => setSelectedStat(ev.target.value)}
+                    values={[
+                        {label: "Total cases", value: "totalCases"},
+                        {label: "Solved cases", value: "solvedCases"},
+                        {label: "Suspects", value: "suspects"}
+                    ]}
+                />
+            </div>
         </div>
     );
 }

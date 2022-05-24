@@ -4,10 +4,20 @@
 
 .app-container {
   display: flex;
+  flex-direction: row;
   justify-content: center;
+}
+
+.central-container {
+  width: 800px;
+  flex-direction: column;
 }
 
 .map-container {
   height: 500px;
-  width: 800px;
+}
+
+.select {
+  width: 100%;
+  margin-top: 15px;
 }

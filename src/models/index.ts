@@ -1,9 +1,11 @@
 export interface NeighborhoodCrime {
-    [neighborhood: string]: {
-        totalCases: string;
-        solvedCases: string;
-        suspects: string;
-    };
+    [neighborhood: string]: CrimeStatistics;
+}
+
+export interface CrimeStatistics {
+    totalCases: string;
+    solvedCases: string;
+    suspects: string;
 }
 
 export interface YearlyData {
@@ -12,4 +14,9 @@ export interface YearlyData {
 
 export interface RawCrimeData {
     [key: string]: string;
+}
+
+export interface SelectMenuData {
+    label: string;
+    value: string;
 }
