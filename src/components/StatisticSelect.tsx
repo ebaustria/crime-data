@@ -13,7 +13,7 @@ const StatisticSelect = (props: Props) => {
         <Select className="select" defaultValue={values[0].value} onChange={onChange}>
             {values.map(val => {
                 return (
-                    <MenuItem value={val.value}>
+                    <MenuItem value={val.value} key={val.value}>
                         {val.label}
                     </MenuItem>
                 );

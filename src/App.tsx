@@ -1,17 +1,19 @@
-import React, {useEffect, useState, useMemo} from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import Papa from "papaparse";
-import Map, {Layer, Source} from 'react-map-gl';
+import Map, { Layer, Source } from 'react-map-gl';
 import "./styles/App.css";
-import {dataLayer} from "./map-style";
-import {updatePercentiles} from "./utils";
-import {NeighborhoodCrime, RawCrimeData, YearlyData} from "./models";
+import { dataLayer } from "./map-style";
+import { updatePercentiles } from "./utils";
+import { NeighborhoodCrime, RawCrimeData, YearlyData } from "./models";
 import StatisticSelect from "./components/StatisticSelect";
+import YearSlider from "./components/YearSlider";
 
 function App() {
     const [lng, setLng] = useState(13.7373);
     const [lat, setLat] = useState(51.0504);
     const [zoom, setZoom] = useState(9.75);
     const [year, setYear] = useState(2020);
+    const [years, setYears] = useState<number[] | number>([2020, 2020]);
     const [geoData, setGeoData] = useState(undefined);
     const [allCrimeData, setAllCrimeData] = useState<RawCrimeData[] | undefined>(undefined);
     const [yearlyData, setYearlyData] = useState<YearlyData | undefined>(undefined);
@@ -83,14 +85,20 @@ function App() {
                         <Layer {...dataLayer} />
                     </Source>
                 </Map>
-                <StatisticSelect
-                    onChange={(ev, child) => setSelectedStat(ev.target.value)}
-                    values={[
-                        {label: "Total cases", value: "totalCases"},
-                        {label: "Solved cases", value: "solvedCases"},
-                        {label: "Suspects", value: "suspects"}
-                    ]}
-                />
+                <div style={{flexDirection: "row", display: "flex"}}>
+                    <StatisticSelect
+                        onChange={(ev, child) => setSelectedStat(ev.target.value)}
+                        values={[
+                            {label: "Total cases", value: "totalCases"},
+                            {label: "Solved cases", value: "solvedCases"},
+                            {label: "Suspects", value: "suspects"}
+                        ]}
+                    />
+                    <YearSlider
+                        onChange={(ev, value, activeThumb) => setYears(value)}
+                        selectedStrings={years}
+                    />
+                </div>
             </div>
         </div>
     );
