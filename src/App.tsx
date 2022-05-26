@@ -12,8 +12,7 @@ function App() {
     const [lng, setLng] = useState(13.7373);
     const [lat, setLat] = useState(51.0504);
     const [zoom, setZoom] = useState(9.75);
-    const [year, setYear] = useState(2020);
-    const [years, setYears] = useState<number[] | number>([2020, 2020]);
+    const [years, setYears] = useState([2020, 2020]);
     const [geoData, setGeoData] = useState(undefined);
     const [allCrimeData, setAllCrimeData] = useState<RawCrimeData[] | undefined>(undefined);
     const [yearlyData, setYearlyData] = useState<YearlyData | undefined>(undefined);
@@ -22,6 +21,16 @@ function App() {
 
     // This token is needed to display the map.
     const MAPBOX_TOKEN = "pk.eyJ1IjoiZXJpY2J1c2giLCJhIjoiY2thcXVzMGszMmJhZjMxcDY2Y2FrdXkwMSJ9.cwBqtbXpWJbtAEGli1AIIg";
+
+    const getYearsRange = (): number[] => {
+        let result: number[] = [];
+        for (let i = years[0]; i <= years[1]; i++) {
+            if (!result.includes(i)) {
+                result.push(i);
+            }
+        }
+        return result;
+    };
 
     useEffect(() => {
         // Load the crime data for Dresden's neighborhoods.
@@ -34,23 +43,29 @@ function App() {
                 // Save the complete data set in a variable so we can use it for static diagrams and other things.
                 setAllCrimeData(results.data as RawCrimeData[]);
 
-                // @ts-ignore
-                results.data.filter(element => element["Jahr"] === "2020")
-                    .forEach(item => {
+                const [statistics2018, statistics2019, statistics2020] =
+                    (results.data as RawCrimeData[]).reduce((result, element) => {
+                        let index;
+                        switch (element["Jahr"]) {
+                            case "2018":
+                                index = 0;
+                                break;
+                            case "2019":
+                                index = 1;
+                                break;
+                            default:
+                                index = 2;
+                                break;
+                        }
                         // @ts-ignore
-                        const key = item["Stadtteil (zusammengefasst)"].replace(/[0-9]/g, '').trim();
-                        // @ts-ignore
-                        const totalCases = item["Fälle erfasst"];
-                        // @ts-ignore
-                        const solvedCases = item["Fälle aufgeklärt"];
-                        // @ts-ignore
-                        const suspects = item["Tatverdächtige insgesamt"];
-                        tempCrimeData[key] = {totalCases, solvedCases, suspects};
-                    });
-
-                // Save the data for 2020 in a variable since we will start the application with 2020 as the only
-                // selected year.
-                setYearlyData({"2020": tempCrimeData});
+                        result[index].push(element);
+                        return result;
+                    }, [[], [], []]);
+                setYearlyData({
+                    "2020": getCrimeDataForNeighborhoods(statistics2020),
+                    "2019": getCrimeDataForNeighborhoods(statistics2019),
+                    "2018": getCrimeDataForNeighborhoods(statistics2018),
+                });
             }
         });
 
@@ -64,9 +79,31 @@ function App() {
     }, []);
 
     const data = useMemo(() => {
-        // @ts-ignore
-        return geoData && yearlyData && updatePercentiles(geoData, f => [f.properties.name, f.properties.official_name], yearlyData, selectedStat);
-    }, [geoData, year, yearlyData, selectedStat]);
+        return geoData && yearlyData && updatePercentiles(
+            geoData,
+            // @ts-ignore
+            f => [f.properties.name, f.properties.official_name],
+            yearlyData,
+            selectedStat,
+            getYearsRange()
+        );
+    }, [geoData, years, yearlyData, selectedStat]);
+
+    const getCrimeDataForNeighborhoods = (rawCrimeDataList: RawCrimeData[]) => {
+        const result: NeighborhoodCrime = {};
+        rawCrimeDataList.forEach(rawCrimeData => {
+            // @ts-ignore
+            const key = rawCrimeData["Stadtteil (zusammengefasst)"].replace(/[0-9]/g, '').trim();
+            // @ts-ignore
+            const totalCases = rawCrimeData["Fälle erfasst"];
+            // @ts-ignore
+            const solvedCases = rawCrimeData["Fälle aufgeklärt"];
+            // @ts-ignore
+            const suspects = rawCrimeData["Tatverdächtige insgesamt"];
+            result[key] = {totalCases, solvedCases, suspects};
+        });
+        return result;
+    };
 
     return (
         <div className="app-container">
@@ -95,7 +132,7 @@ function App() {
                         ]}
                     />
                     <YearSlider
-                        onChange={(ev, value, activeThumb) => setYears(value)}
+                        onChange={(ev, value, activeThumb) => setYears(value as number[])}
                         selectedStrings={years}
                     />
                 </div>
