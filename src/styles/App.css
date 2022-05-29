@@ -8,8 +8,17 @@
   justify-content: center;
 }
 
+.side-container {
+  display: flex;
+  flex: 1;
+  height: 100%;
+  flex-direction: column;
+  align-items: center;
+}
+
 .central-container {
-  width: 800px;
+  flex: 2;
+  height: 100%;
   flex-direction: column;
 }
 

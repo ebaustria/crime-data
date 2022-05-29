@@ -7,6 +7,7 @@ import { updatePercentiles } from "./utils";
 import { NeighborhoodCrime, RawCrimeData, YearlyData } from "./models";
 import StatisticSelect from "./components/StatisticSelect";
 import YearSlider from "./components/YearSlider";
+import LineGraph from "./diagrams/LineGraph";
 
 function App() {
     const [lng, setLng] = useState(13.7373);
@@ -107,6 +108,9 @@ function App() {
 
     return (
         <div className="app-container">
+            <div className="side-container">
+                <LineGraph />
+            </div>
             <div className="central-container">
                 <Map
                     initialViewState={{
@@ -114,7 +118,7 @@ function App() {
                         latitude: lat,
                         zoom: zoom
                     }}
-                    style={{width: 800, height: 500}}
+                    style={{height: 500}}
                     mapStyle="mapbox://styles/mapbox/streets-v11"
                     mapboxAccessToken={MAPBOX_TOKEN}
                 >
@@ -136,6 +140,9 @@ function App() {
                         selectedStrings={years}
                     />
                 </div>
+            </div>
+            <div className="side-container">
+                dynamic graphs
             </div>
         </div>
     );
