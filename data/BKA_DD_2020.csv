@@ -1,0 +1,12 @@
+﻿ID;Straftat;Anzahl erfasster Fälle;erfasste Fälle, davon Versuche;mit Schusswaffe gedroht;mit Schusswaffe geschossen;Anzahl aufgeklärter Fälle;Aufklärungsqoute;Tatverdächtige insgesamt;Tatverdächtige, davon männlich;Tatverdächtige, davon weiblich
+0;Straftaten insgesamt;48.929;4.335;31;25;28.370;58,0;16.328;12.152;4.176
+1;Vergewaltigung, sexuelle Nötigung und sexueller Übergriff;55;3;0;0;47;85,5;49;49;0
+2;Raub, räuberische Erpressung und räuberischer Angriff;533;87;7;0;322;417;458;429;29
+3;Körperverletzung;3.588;250;1;5;3.043;166;2.965;2.459;506
+4;Diebstahl;20.013;3.315;0;0;6.431;32,1;3.700;2.688;1.012
+5;Betrug;8.503;492;0;0;7.638;89,8;4.813;3.373;1.440
+6;Sachbeschädigung;4.689;55;0;5;1.090;23,2;973;821;152
+7;Rauschgiftdelikte;2.240;28;0;0;2.114;94,4;1.860;1.596;264
+8;Mord, Totschlag und Tötung auf Verlangen;17;9;0;0;17;100,0;20;18;2
+9;Cybercrime;814;126;0;0;459;114;338;242;96
+10;Straßenkriminalität;9.029;533;1;5;1.882;20,8;1.646;1.454;192
