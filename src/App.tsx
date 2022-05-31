@@ -19,6 +19,7 @@ function App() {
     const [yearlyData, setYearlyData] = useState<YearlyData | undefined>(undefined);
     const [hoverInfo, setHoverInfo] = useState(null);
     const [selectedStat, setSelectedStat] = useState("totalCases");
+    const allYears: string[] = ["2018", "2019", "2020"];
 
     // This token is needed to display the map.
     const MAPBOX_TOKEN = "pk.eyJ1IjoiZXJpY2J1c2giLCJhIjoiY2thcXVzMGszMmJhZjMxcDY2Y2FrdXkwMSJ9.cwBqtbXpWJbtAEGli1AIIg";
@@ -39,8 +40,6 @@ function App() {
             header: true,
             download: true,
             complete: function(results) {
-                const tempCrimeData: NeighborhoodCrime = {};
-
                 // Save the complete data set in a variable so we can use it for static diagrams and other things.
                 setAllCrimeData(results.data as RawCrimeData[]);
 
@@ -109,7 +108,12 @@ function App() {
     return (
         <div className="app-container">
             <div className="side-container">
-                <LineGraph />
+                {yearlyData &&
+                    <LineGraph
+                        chartData={allYears.map(year => yearlyData[year]["Insgesamt"])}
+                        years={allYears.map(year => parseInt(year))}
+                    />
+                }
             </div>
             <div className="central-container">
                 <Map

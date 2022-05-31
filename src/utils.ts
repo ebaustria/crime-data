@@ -57,3 +57,5 @@ const getValueForNeighborhood = (neighborhoodNames: string[], crimeData: YearlyD
     });
     return total;
 }
+
+export const zip = (firstArray: any[], secondArray: any[]) => firstArray.map((k, i) => [k, secondArray[i]]);
