@@ -1,0 +1,17 @@
+.select {
+    margin-right: 10px;
+    margin-top: 5px;
+    flex: 1;
+}
+
+.year-slider {
+    margin-left: 10px;
+    margin-top: 15px;
+    flex: 1;
+}
+
+.thumb {
+    height: 25px;
+    width: 25px;
+    color: blue;
+}

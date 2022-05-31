@@ -1,6 +1,7 @@
 import { Select, MenuItem, SelectChangeEvent } from "@mui/material";
 import { SelectMenuData } from "../models";
 import { ReactNode } from "react";
+import "../styles/components.css";
 
 interface Props {
     values: SelectMenuData[];

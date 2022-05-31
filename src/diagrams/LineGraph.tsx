@@ -3,6 +3,7 @@ import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 import { CrimeStatistics } from "../models";
 import { zip } from "../utils";
+import "../styles/diagrams.css";
 
 interface Props {
     chartData: CrimeStatistics[];
@@ -19,7 +20,8 @@ const LineGraph = (props: Props) => {
             zoomType: "xy"
         },
         title: {
-            text: "Crime Data by Category, 2018-2020"
+            text: "Crime Data by Category, 2018-2020",
+            style: { fontSize: "20" },
         },
         yAxis: {
             title: {
@@ -55,7 +57,7 @@ const LineGraph = (props: Props) => {
     }, []);
 
     return (
-        <div style={{height: "35%", width: "100%"}}>
+        <div className="chart-container">
             <HighchartsReact
                 ref={lineChartRef}
                 highcharts={Highcharts}

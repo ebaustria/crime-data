@@ -1,4 +1,5 @@
 import { Slider } from "@mui/material";
+import "../styles/components.css";
 
 interface Props {
     selectedStrings: number[] | number;
