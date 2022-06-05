@@ -20,7 +20,7 @@ const LineGraph = (props: Props) => {
             zoomType: "xy"
         },
         title: {
-            text: "Crime Data by Category, 2018-2020",
+            text: "Crime Data by Category, 2016-2020",
             style: { fontSize: "20" },
         },
         yAxis: {

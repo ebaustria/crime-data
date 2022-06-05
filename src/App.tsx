@@ -19,7 +19,7 @@ function App() {
     const [yearlyData, setYearlyData] = useState<YearlyData | undefined>(undefined);
     const [hoverInfo, setHoverInfo] = useState(null);
     const [selectedStat, setSelectedStat] = useState("totalCases");
-    const allYears: string[] = ["2018", "2019", "2020"];
+    const allYears: string[] = ["2016", "2017", "2018", "2019", "2020"];
 
     // This token is needed to display the map.
     const MAPBOX_TOKEN = "pk.eyJ1IjoiZXJpY2J1c2giLCJhIjoiY2thcXVzMGszMmJhZjMxcDY2Y2FrdXkwMSJ9.cwBqtbXpWJbtAEGli1AIIg";
@@ -43,28 +43,36 @@ function App() {
                 // Save the complete data set in a variable so we can use it for static diagrams and other things.
                 setAllCrimeData(results.data as RawCrimeData[]);
 
-                const [statistics2018, statistics2019, statistics2020] =
+                const [statistics2016, statistics2017, statistics2018, statistics2019, statistics2020] =
                     (results.data as RawCrimeData[]).reduce((result, element) => {
                         let index;
                         switch (element["Jahr"]) {
-                            case "2018":
+                            case "2016":
                                 index = 0;
                                 break;
-                            case "2019":
+                            case "2017":
                                 index = 1;
                                 break;
-                            default:
+                            case "2018":
                                 index = 2;
+                                break;
+                            case "2019":
+                                index = 3;
+                                break;
+                            default:
+                                index = 4;
                                 break;
                         }
                         // @ts-ignore
                         result[index].push(element);
                         return result;
-                    }, [[], [], []]);
+                    }, [[], [], [], [], []]);
                 setYearlyData({
                     "2020": getCrimeDataForNeighborhoods(statistics2020),
                     "2019": getCrimeDataForNeighborhoods(statistics2019),
                     "2018": getCrimeDataForNeighborhoods(statistics2018),
+                    "2017": getCrimeDataForNeighborhoods(statistics2017),
+                    "2016": getCrimeDataForNeighborhoods(statistics2016),
                 });
             }
         });
