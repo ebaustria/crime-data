@@ -1,12 +1,13 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, {useEffect, useState, useMemo, useCallback} from "react";
 import Papa from "papaparse";
-import Map, { Layer, Source } from 'react-map-gl';
+import Map, {Layer, MapboxGeoJSONFeature, MapLayerMouseEvent, Source} from 'react-map-gl';
 import "./styles/App.css";
 import { dataLayer } from "./map-style";
 import { updatePercentiles } from "./utils";
 import { NeighborhoodCrime, RawCrimeData, YearlyData } from "./models";
 import StatisticSelect from "./components/StatisticSelect";
 import YearSlider from "./components/YearSlider";
+import MapTooltip from "./components/MapTooltip";
 import LineGraph from "./diagrams/LineGraph";
 
 function App() {
@@ -17,7 +18,7 @@ function App() {
     const [geoData, setGeoData] = useState(undefined);
     const [allCrimeData, setAllCrimeData] = useState<RawCrimeData[] | undefined>(undefined);
     const [yearlyData, setYearlyData] = useState<YearlyData | undefined>(undefined);
-    const [hoverInfo, setHoverInfo] = useState(null);
+    const [hoverInfo, setHoverInfo] = useState<{ feature: MapboxGeoJSONFeature; x: number; y: number; } | undefined>(undefined);
     const [selectedStat, setSelectedStat] = useState("totalCases");
     const allYears: string[] = ["2016", "2017", "2018", "2019", "2020"];
 
@@ -86,6 +87,17 @@ function App() {
             .catch(err => console.error('Could not load data', err)); // eslint-disable-line
     }, []);
 
+    const onHover = useCallback((event: MapLayerMouseEvent) => {
+        const {
+            features,
+            point: {x, y}
+        } = event;
+        const hoveredFeature = features && features[0];
+
+        // prettier-ignore
+        setHoverInfo(hoveredFeature && {feature: hoveredFeature, x, y});
+    }, []);
+
     const data = useMemo(() => {
         return geoData && yearlyData && updatePercentiles(
             geoData,
@@ -132,11 +144,14 @@ function App() {
                     }}
                     style={{height: 500}}
                     mapStyle="mapbox://styles/mapbox/streets-v11"
+                    onMouseMove={onHover}
+                    interactiveLayerIds={['data']}
                     mapboxAccessToken={MAPBOX_TOKEN}
                 >
                     <Source type="geojson" data={data}>
                         <Layer {...dataLayer} />
                     </Source>
+                    {hoverInfo && <MapTooltip hoverInfo={hoverInfo} />}
                 </Map>
                 <div style={{flexDirection: "row", display: "flex"}}>
                     <StatisticSelect

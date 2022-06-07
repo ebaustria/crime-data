@@ -15,3 +15,8 @@
     width: 25px;
     color: blue;
 }
+
+.map-tooltip {
+    background-color: white;
+    position: absolute;
+}
