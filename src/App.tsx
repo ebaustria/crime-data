@@ -4,7 +4,7 @@ import Map, {Layer, MapboxGeoJSONFeature, MapLayerMouseEvent, Source} from 'reac
 import "./styles/App.css";
 import { dataLayer } from "./map-style";
 import { updatePercentiles } from "./utils";
-import { NeighborhoodCrime, RawCrimeData, YearlyData } from "./models";
+import { NeighborhoodCrime, RawCrimeData, SelectMenuData, YearlyData } from "./models";
 import StatisticSelect from "./components/StatisticSelect";
 import YearSlider from "./components/YearSlider";
 import MapTooltip from "./components/MapTooltip";
@@ -19,7 +19,7 @@ function App() {
     const [allCrimeData, setAllCrimeData] = useState<RawCrimeData[] | undefined>(undefined);
     const [yearlyData, setYearlyData] = useState<YearlyData | undefined>(undefined);
     const [hoverInfo, setHoverInfo] = useState<{ feature: MapboxGeoJSONFeature; x: number; y: number; } | undefined>(undefined);
-    const [selectedStat, setSelectedStat] = useState("totalCases");
+    const [selectedStat, setSelectedStat] = useState<SelectMenuData>({label: "Total cases", value: "totalCases"});
     const allYears: string[] = ["2016", "2017", "2018", "2019", "2020"];
 
     // This token is needed to display the map.
@@ -104,12 +104,12 @@ function App() {
             // @ts-ignore
             f => [f.properties.name, f.properties.official_name],
             yearlyData,
-            selectedStat,
+            selectedStat.value,
             getYearsRange()
         );
     }, [geoData, years, yearlyData, selectedStat]);
 
-    const getCrimeDataForNeighborhoods = (rawCrimeDataList: RawCrimeData[]) => {
+    const getCrimeDataForNeighborhoods = (rawCrimeDataList: RawCrimeData[]): NeighborhoodCrime => {
         const result: NeighborhoodCrime = {};
         rawCrimeDataList.forEach(rawCrimeData => {
             // @ts-ignore
@@ -123,6 +123,17 @@ function App() {
             result[key] = {totalCases, solvedCases, suspects};
         });
         return result;
+    };
+
+    const getLabelForStatistic = (stat: string): string => {
+        switch (stat) {
+            case "totalCases":
+                return "Total cases";
+            case "solvedCases":
+                return "Solved cases";
+            default:
+                return "Suspects";
+        }
     };
 
     return (
@@ -151,11 +162,15 @@ function App() {
                     <Source type="geojson" data={data}>
                         <Layer {...dataLayer} />
                     </Source>
-                    {hoverInfo && <MapTooltip hoverInfo={hoverInfo} />}
+                    {hoverInfo && <MapTooltip label={selectedStat.label} hoverInfo={hoverInfo} />}
                 </Map>
                 <div style={{flexDirection: "row", display: "flex"}}>
                     <StatisticSelect
-                        onChange={(ev, child) => setSelectedStat(ev.target.value)}
+                        onChange={(ev, child) => {
+                            const value: string = ev.target.value;
+                            setHoverInfo(undefined);
+                            setSelectedStat({label: getLabelForStatistic(value), value});
+                        }}
                         values={[
                             {label: "Total cases", value: "totalCases"},
                             {label: "Solved cases", value: "solvedCases"},
@@ -163,7 +178,10 @@ function App() {
                         ]}
                     />
                     <YearSlider
-                        onChange={(ev, value, activeThumb) => setYears(value as number[])}
+                        onChange={(ev, value, activeThumb) => {
+                            setHoverInfo(undefined);
+                            setYears(value as number[]);
+                        }}
                         selectedStrings={years}
                     />
                 </div>

@@ -4,21 +4,22 @@ import {MapboxGeoJSONFeature} from "react-map-gl";
 
 interface Props {
     hoverInfo: {feature: MapboxGeoJSONFeature, x: number, y: number};
+    label: string;
 }
 
 const MapTooltip = (props: Props) => {
-    const { hoverInfo } = props;
+    const { hoverInfo, label } = props;
 
     return (
         <div
             className="map-tooltip"
             style={{
-                left: hoverInfo.x,
-                top: hoverInfo.y,
+                left: hoverInfo.x + 1,
+                top: hoverInfo.y + 1,
             }}
         >
-            <div >Neighborhood: {hoverInfo.feature.properties!.name}</div>
-            <div>Total cases: {hoverInfo.feature.properties!.value}</div>
+            <div style={{fontWeight: "bold"}}>{hoverInfo.feature.properties!.name}</div>
+            <div>{label}: {hoverInfo.feature.properties!.value}</div>
         </div>
     );
 };
