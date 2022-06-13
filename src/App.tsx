@@ -9,6 +9,7 @@ import StatisticSelect from "./components/StatisticSelect";
 import YearSlider from "./components/YearSlider";
 import MapTooltip from "./components/MapTooltip";
 import LineGraph from "./diagrams/LineGraph";
+import StaticBarChart from "./diagrams/StaticBarChart";
 
 function App() {
     const [lng, setLng] = useState(13.7373);
@@ -141,6 +142,12 @@ function App() {
             <div className="side-container">
                 {yearlyData &&
                     <LineGraph
+                        chartData={allYears.map(year => yearlyData[year]["Insgesamt"])}
+                        years={allYears.map(year => parseInt(year))}
+                    />
+                }
+                {yearlyData &&
+                    <StaticBarChart
                         chartData={allYears.map(year => yearlyData[year]["Insgesamt"])}
                         years={allYears.map(year => parseInt(year))}
                     />
