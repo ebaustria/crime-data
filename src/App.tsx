@@ -10,6 +10,7 @@ import YearSlider from "./components/YearSlider";
 import MapTooltip from "./components/MapTooltip";
 import LineGraph from "./diagrams/LineGraph";
 import StaticBarChart from "./diagrams/StaticBarChart";
+import AreaChart from "./diagrams/AreaChart";
 
 function App() {
     const [lng, setLng] = useState(13.7373);
@@ -189,7 +190,7 @@ function App() {
                 </div>
             </div>
             <div className="side-container">
-                dynamic graphs
+                <AreaChart chartData={[]} years={[]}/>
             </div>
         </div>
     );
