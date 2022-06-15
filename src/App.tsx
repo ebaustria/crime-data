@@ -146,12 +146,7 @@ function App() {
                         years={allYears.map(year => parseInt(year))}
                     />
                 }
-                {yearlyData &&
-                    <StaticBarChart
-                        chartData={allYears.map(year => yearlyData[year]["Insgesamt"])}
-                        years={allYears.map(year => parseInt(year))}
-                    />
-                }
+                <StaticBarChart chartData={[]} years={[]}/>
             </div>
             <div className="central-container">
                 <Map
