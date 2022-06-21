@@ -11,6 +11,7 @@ import MapTooltip from "./components/MapTooltip";
 import LineGraph from "./diagrams/LineGraph";
 import StaticBarChart from "./diagrams/StaticBarChart";
 import AreaChart from "./diagrams/AreaChart";
+import PieChart from "./diagrams/PieChart";
 
 function App() {
     const [lng, setLng] = useState(13.7373);
@@ -191,6 +192,7 @@ function App() {
             </div>
             <div className="side-container">
                 <AreaChart chartData={[]} years={[]}/>
+                <PieChart chartData={[]} years={[]}/>
             </div>
         </div>
     );
