@@ -23,7 +23,7 @@ function App() {
     const [allCrimeData, setAllCrimeData] = useState<RawCrimeData[] | undefined>(undefined);
     const [yearlyData, setYearlyData] = useState<YearlyData | undefined>(undefined);
     const [hoverInfo, setHoverInfo] = useState<{ feature: MapboxGeoJSONFeature; x: number; y: number; } | undefined>(undefined);
-    const [selectedStat, setSelectedStat] = useState<SelectMenuData>({label: "Total cases", value: "totalCases"});
+    const [selectedStat, setSelectedStat] = useState<SelectMenuData>({label: "Total Cases", value: "totalCases"});
     const allYears: string[] = ["2016", "2017", "2018", "2019", "2020"];
 
     // This token is needed to display the map.
@@ -136,9 +136,9 @@ function App() {
     const getLabelForStatistic = (stat: string): string => {
         switch (stat) {
             case "totalCases":
-                return "Total cases";
+                return "Total Cases";
             case "solvedCases":
-                return "Solved cases";
+                return "Solved Cases";
             default:
                 return "Suspects";
         }
@@ -182,8 +182,8 @@ function App() {
                             setSelectedStat({label: getLabelForStatistic(value), value});
                         }}
                         values={[
-                            {label: "Total cases", value: "totalCases"},
-                            {label: "Solved cases", value: "solvedCases"},
+                            {label: "Total Cases", value: "totalCases"},
+                            {label: "Solved Cases", value: "solvedCases"},
                             {label: "Suspects", value: "suspects"}
                         ]}
                     />
