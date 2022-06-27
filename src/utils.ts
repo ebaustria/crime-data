@@ -2,7 +2,7 @@ import { range } from 'd3-array';
 import { scaleQuantile } from 'd3-scale';
 
 import type GeoJSON from 'geojson';
-import {CrimeStatistics, YearlyData} from "./models";
+import {CrimeStatistics, NeighborhoodCrime, RawCrimeData, YearlyData} from "./models";
 
 /** Calculates percentiles of administrative districts (neighborhoods, city districts, etc.) for a given crime
  * statistic. */
@@ -57,5 +57,29 @@ const getValueForNeighborhood = (neighborhoodNames: string[], crimeData: YearlyD
     });
     return total;
 }
+
+/** Fetch the GeoJSON data for a geographic area. This is needed to draw polygons on the map. */
+export const fetchGeoData = (url: string, onFetch: (json: any) => void) => {
+    fetch(url)
+        .then(resp => resp.json())
+        .then(json => onFetch(json))
+        .catch(err => console.error('Could not load data', err)); // eslint-disable-line
+}
+
+export const getCrimeDataForNeighborhoods = (rawCrimeDataList: RawCrimeData[]): NeighborhoodCrime => {
+    const result: NeighborhoodCrime = {};
+    rawCrimeDataList.forEach(rawCrimeData => {
+        // @ts-ignore
+        const key = rawCrimeData["Stadtteil (zusammengefasst)"].replace(/[0-9]/g, '').trim();
+        // @ts-ignore
+        const totalCases = rawCrimeData["Fälle erfasst"];
+        // @ts-ignore
+        const solvedCases = rawCrimeData["Fälle aufgeklärt"];
+        // @ts-ignore
+        const suspects = rawCrimeData["Tatverdächtige insgesamt"];
+        result[key] = {totalCases, solvedCases, suspects};
+    });
+    return result;
+};
 
 export const zip = (firstArray: any[], secondArray: any[]) => firstArray.map((k, i) => [k, secondArray[i]]);

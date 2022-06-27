@@ -3,7 +3,7 @@ import Papa from "papaparse";
 import Map, {Layer, MapboxGeoJSONFeature, MapLayerMouseEvent, Source} from 'react-map-gl';
 import "./styles/App.css";
 import { dataLayer } from "./map-style";
-import { updatePercentiles } from "./utils";
+import {fetchGeoData, getCrimeDataForNeighborhoods, updatePercentiles} from "./utils";
 import { NeighborhoodCrime, RawCrimeData, SelectMenuData, YearlyData } from "./models";
 import StatisticSelect from "./components/StatisticSelect";
 import YearSlider from "./components/YearSlider";
@@ -19,6 +19,7 @@ function App() {
     const [zoom, setZoom] = useState(9.75);
     const [years, setYears] = useState([2020, 2020]);
     const [geoData, setGeoData] = useState(undefined);
+    const [showLocalView, setShowLocalView] = useState(true);
     const [allCrimeData, setAllCrimeData] = useState<RawCrimeData[] | undefined>(undefined);
     const [yearlyData, setYearlyData] = useState<YearlyData | undefined>(undefined);
     const [hoverInfo, setHoverInfo] = useState<{ feature: MapboxGeoJSONFeature; x: number; y: number; } | undefined>(undefined);
@@ -81,14 +82,34 @@ function App() {
             }
         });
 
-        // Fetch the GeoJSON data for Dresden's neighborhoods. This is needed to draw the polygons on the map.
-        fetch(
-            "https://raw.githubusercontent.com/offenesdresden/GeoData/master/Stadtteile-Dresden.geojson"
-        )
-            .then(resp => resp.json())
-            .then(json => setGeoData(json))
-            .catch(err => console.error('Could not load data', err)); // eslint-disable-line
+        setLocalScene();
     }, []);
+
+    useEffect(() => {
+        if (zoom <= 6 && showLocalView) {
+            fetchGeoData(
+                "https://raw.githubusercontent.com/blackmad/neighborhoods/master/germany.geojson",
+                json => {
+                    setGeoData(json);
+                    setShowLocalView(false);
+                }
+            );
+            return;
+        }
+        if (zoom > 6 && !showLocalView) {
+            setLocalScene();
+        }
+    }, [showLocalView, zoom]);
+
+    const setLocalScene = (): void => {
+        fetchGeoData(
+            "https://raw.githubusercontent.com/offenesdresden/GeoData/master/Stadtteile-Dresden.geojson",
+            json => {
+                setGeoData(json);
+                setShowLocalView(true);
+            }
+        );
+    }
 
     const onHover = useCallback((event: MapLayerMouseEvent) => {
         const {
@@ -111,22 +132,6 @@ function App() {
             getYearsRange()
         );
     }, [geoData, years, yearlyData, selectedStat]);
-
-    const getCrimeDataForNeighborhoods = (rawCrimeDataList: RawCrimeData[]): NeighborhoodCrime => {
-        const result: NeighborhoodCrime = {};
-        rawCrimeDataList.forEach(rawCrimeData => {
-            // @ts-ignore
-            const key = rawCrimeData["Stadtteil (zusammengefasst)"].replace(/[0-9]/g, '').trim();
-            // @ts-ignore
-            const totalCases = rawCrimeData["Fälle erfasst"];
-            // @ts-ignore
-            const solvedCases = rawCrimeData["Fälle aufgeklärt"];
-            // @ts-ignore
-            const suspects = rawCrimeData["Tatverdächtige insgesamt"];
-            result[key] = {totalCases, solvedCases, suspects};
-        });
-        return result;
-    };
 
     const getLabelForStatistic = (stat: string): string => {
         switch (stat) {
@@ -157,6 +162,7 @@ function App() {
                         latitude: lat,
                         zoom: zoom
                     }}
+                    onZoom={e => setZoom(e.target.getZoom())}
                     style={{height: 500}}
                     mapStyle="mapbox://styles/mapbox/streets-v11"
                     onMouseMove={onHover}
