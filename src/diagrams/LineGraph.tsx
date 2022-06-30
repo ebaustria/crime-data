@@ -32,7 +32,7 @@ const LineGraph = (props: Props) => {
         xAxis: {
             crosshair: true
         },
-        
+
         series: [
             {
                 name: "Total Cases",
@@ -59,6 +59,18 @@ const LineGraph = (props: Props) => {
             shared: true,
             useHTML: true
         },
+
+        plotOptions: {
+            series: {
+                point: {
+                  events: {
+                    click: function() {
+                      console.log(this.category);
+                    }
+                  }
+                }
+              }
+        }
     }
 
     useEffect(() => {
@@ -80,5 +92,9 @@ const LineGraph = (props: Props) => {
         </div>
     );
 };
+
+Highcharts.charts.forEach((chart) => {
+    console.log(chart?.series);
+})
 
 export default LineGraph;

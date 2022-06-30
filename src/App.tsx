@@ -144,15 +144,19 @@ function App() {
 
     return (
         <div className="app-container">
-            <div className="side-container">
+            <div className="left-container">
+                <StaticBarChart chartData={[]} years={[]}/>
+
+                <div className="placeholder">density plot</div>
+
                 {yearlyData &&
                     <LineGraph
                         chartData={allYears.map(year => yearlyData[year]["Insgesamt"])}
                         years={allYears.map(year => parseInt(year))}
                     />
                 }
-                <StaticBarChart chartData={[]} years={[]}/>
             </div>
+
             <div className="central-container">
                 <Map
                     initialViewState={{
@@ -160,7 +164,6 @@ function App() {
                         latitude: lat,
                         zoom: zoom
                     }}
-                    style={{height: 500}}
                     mapStyle="mapbox://styles/mapbox/streets-v11"
                     onMouseMove={onHover}
                     interactiveLayerIds={['data']}
@@ -171,8 +174,8 @@ function App() {
                     </Source>
                     {hoverInfo && <MapTooltip label={selectedStat.label} hoverInfo={hoverInfo} />}
                 </Map>
-                <div style={{flexDirection: "row", display: "flex"}}>
-                    <StatisticSelect
+
+                <StatisticSelect
                         onChange={(ev, child) => {
                             const value: string = ev.target.value;
                             setHoverInfo(undefined);
@@ -184,23 +187,24 @@ function App() {
                             {label: "Suspects", value: "suspects"}
                         ]}
                     />
-                    <YearSlider
+
+                <YearSlider
                         onChange={(ev, value, activeThumb) => {
                             setHoverInfo(undefined);
                             setYears(value as number[]);
                         }}
                         selectedStrings={years}
-                    />
-                </div>
+                />
+
+                <PercChart chartData={[]} years={[]}/>
             </div>
-            <div className="side-container">
+
+            <div className="right-container">
                 <AreaChart chartData={[]} years={[]}/>
                 <PieChart chartData={[]} years={[]}/>
-                <PercChart chartData={[]} years={[]}/>
-                <ColumnChart chartData={[]} years={[]}/>
-                
-
-            </div>
+                <ColumnChart chartData={[]} years={[]}/> 
+            </div>                   
+               
         </div>
     );
 }
