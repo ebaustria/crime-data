@@ -12,6 +12,9 @@ import LineGraph from "./diagrams/LineGraph";
 import StaticBarChart from "./diagrams/StaticBarChart";
 import AreaChart from "./diagrams/AreaChart";
 import PieChart from "./diagrams/PieChart";
+import PercChart from "./diagrams/PercChart";
+import ColumnChart from "./diagrams/ColumnChart";
+
 
 function App() {
     const [lng, setLng] = useState(13.7373);
@@ -193,6 +196,10 @@ function App() {
             <div className="side-container">
                 <AreaChart chartData={[]} years={[]}/>
                 <PieChart chartData={[]} years={[]}/>
+                <PercChart chartData={[]} years={[]}/>
+                <ColumnChart chartData={[]} years={[]}/>
+                
+
             </div>
         </div>
     );
