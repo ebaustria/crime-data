@@ -200,9 +200,20 @@ function App() {
             </div>
 
             <div className="right-container">
-                <AreaChart chartData={[]} years={[]}/>
-                <PieChart/>
-                <ColumnChart chartData={[]} years={[]}/> 
+                <div className="grid-cell">
+                    { years[0] == years[1] 
+                        ? <PieChart/>
+                        : <AreaChart chartData={[]} years={[]}/>
+                    }
+                </div>
+                <div className="grid-cell">
+                    { years[0] == years[1] &&
+                        <ColumnChart chartData={[]} years={[]}/>
+                    }
+                </div>
+                <div className="grid-cell">
+
+                </div> 
             </div>                   
                
         </div>
