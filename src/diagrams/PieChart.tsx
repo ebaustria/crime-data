@@ -11,8 +11,7 @@ interface Props {
     years: number[];
 }     
 
-const PieChart = (props: Props) => {
-    const { chartData, years } = props;
+const PieChart = () => {
     const PieChartRef = useRef<HighchartsReact.RefObject>(null);
 
     const options: Highcharts.Options = {
@@ -45,7 +44,18 @@ const PieChart = (props: Props) => {
                     { y: 12320, name: "Straßenkriminalität", color: '#dd9a9a'},
                 
                 ],
-            type: 'pie'
+            type: 'pie',
+
+            point: {
+                events: {
+                  mouseOver(e) {
+                    highlightFunction(this);
+                  },
+                  mouseOut() {
+                    hideFunction()
+                  }
+                }
+            }
               
             }]
     }
@@ -60,7 +70,7 @@ const PieChart = (props: Props) => {
     }, []);
 
     return (
-        <div className="chart-container">
+        <div className="chart-container pie-chart">
             <HighchartsReact
                 ref={PieChartRef}
                 highcharts={Highcharts}
@@ -69,5 +79,49 @@ const PieChart = (props: Props) => {
         </div>
     );
 };
+
+// ---------------------------------------------------
+
+let getColumnChart = function() {
+    var pie_chart_index = -1;
+
+    Highcharts.charts.forEach((chart, index) => {
+        if (chart != undefined) {
+            var container: any = chart?.container;
+            while (!container?.classList.contains('chart-container')) container = container.parentNode;
+            if (container.classList.contains('column-chart')) pie_chart_index = index;
+            
+        }
+    });
+    if (pie_chart_index == -1) return null;
+    return Highcharts.charts[pie_chart_index];
+}
+
+let highlightFunction = function(point: any) {
+    var clicked_category = point.name;
+    var column_chart = getColumnChart();
+    if (column_chart == null) return ;
+
+    column_chart?.series[0].points.forEach(point => {
+        if (point.category == clicked_category) {
+            point.setState('hover');
+            point.series.chart.tooltip.refresh(point);
+        } else {
+            point.setState('inactive');
+        }
+    });
+};
+
+let hideFunction = function () {
+    var column_chart = getColumnChart();
+
+    column_chart?.series[0].points.forEach(point => {
+        point.setState('normal');
+    });
+}
+
+// let highlightFunction = function(point: any) {
+//     console.log(point.name);
+// };
 
 export default PieChart;

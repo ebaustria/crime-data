@@ -5,6 +5,7 @@ import { CrimeStatistics } from "../models";
 import { zip } from "../utils";
 import "../styles/diagrams.css";
 import { cardClasses } from "@mui/material";
+import PieChart from './PieChart';
 
 interface Props {
     chartData: CrimeStatistics[];
@@ -68,6 +69,17 @@ const ColumnChart = (props: Props) => {
                 
                 ],
             type: 'column',
+
+            point: {
+                events: {
+                  mouseOver(e) {
+                    highlightFunction(this);
+                  },
+                  mouseOut() {
+                    hideFunction()
+                  }
+                }
+            }
               
             }]
             
@@ -83,7 +95,7 @@ const ColumnChart = (props: Props) => {
     }, []);
 
     return (
-        <div className="chart-container">
+        <div className="chart-container column-chart">
             <HighchartsReact
                 ref={ColumnChartRef}
                 highcharts={Highcharts}
@@ -92,5 +104,46 @@ const ColumnChart = (props: Props) => {
         </div>
     );
 };
+
+// ---------------------------------------------------
+
+let getPieChart = function() {
+    var pie_chart_index = -1;
+
+    Highcharts.charts.forEach((chart, index) => {
+        if (chart != undefined) {
+            var container: any = chart?.container;
+            while (!container?.classList.contains('chart-container')) container = container.parentNode;
+            if (container.classList.contains('pie-chart')) pie_chart_index = index;
+            
+        }
+    });
+    if (pie_chart_index == -1) return null;
+    return Highcharts.charts[pie_chart_index];
+}
+
+let highlightFunction = function(point: any) {
+    var clicked_category = point.category;
+    var pie_chart = getPieChart();
+
+    if (pie_chart == null) return ;
+
+    pie_chart?.series[0].points.forEach(point => {
+        if (point.name == clicked_category) {
+            point.setState('hover');
+            point.series.chart.tooltip.refresh(point);
+        } else {
+            point.setState('inactive');
+        }
+    });
+};
+
+let hideFunction = function () {
+    var pie_chart = getPieChart();
+
+    pie_chart?.series[0].points.forEach(point => {
+        point.setState('normal');
+    });
+}
 
 export default ColumnChart;

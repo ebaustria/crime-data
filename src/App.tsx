@@ -201,7 +201,7 @@ function App() {
 
             <div className="right-container">
                 <AreaChart chartData={[]} years={[]}/>
-                <PieChart chartData={[]} years={[]}/>
+                <PieChart/>
                 <ColumnChart chartData={[]} years={[]}/> 
             </div>                   
                
