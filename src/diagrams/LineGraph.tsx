@@ -66,6 +66,12 @@ const LineGraph = (props: Props) => {
                   events: {
                     click: function() {
                       console.log(this.category);
+                    },
+                    mouseOver() {
+                        highlightFunction(this);
+                    },
+                    mouseOut() {
+                        hideFunction()
                     }
                   }
                 }
@@ -81,7 +87,7 @@ const LineGraph = (props: Props) => {
             lineChartRef.current.chart.reflow();
         }
     }, []);
-
+    
     return (
         <div className="chart-container">
             <HighchartsReact
@@ -93,8 +99,49 @@ const LineGraph = (props: Props) => {
     );
 };
 
-Highcharts.charts.forEach((chart) => {
-    console.log(chart?.series);
-})
+// ------------------------------------------------
+
+let getStaticBarChart = function() {
+    var static_bar_chart_index = -1;
+
+    Highcharts.charts.forEach((chart, index) => {
+        if (chart != undefined) {
+            var container: any = chart?.container;
+            while (!container?.classList.contains('chart-container')) container = container.parentNode;
+            if (container.classList.contains('static-bar-chart')) static_bar_chart_index = index;
+            
+        }
+    });
+    if (static_bar_chart_index == -1) return null;
+    return Highcharts.charts[static_bar_chart_index];
+}
+
+let highlightFunction = function (point: any) {
+    var clicked_category = point.category;
+    var static_bar_chart = getStaticBarChart();
+    var series_index = -1;
+    
+    static_bar_chart?.series.forEach((series, index) => {
+        if (series.name == clicked_category) {
+            series.points.forEach(point => {
+                point.setState('hover');
+            });
+        } else {
+            series.points.forEach(point => {
+                point.setState('inactive');
+            });
+        }
+    });
+}
+
+let hideFunction = function () {
+    var static_bar_chart = getStaticBarChart();
+
+    static_bar_chart?.series.forEach(series => {
+        series.points.forEach(point => {
+            point.setState('normal');
+        });
+    });
+}
 
 export default LineGraph;
