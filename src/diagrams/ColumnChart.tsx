@@ -6,23 +6,44 @@ import { zip } from "../utils";
 import "../styles/diagrams.css";
 import { cardClasses } from "@mui/material";
 import PieChart from './PieChart';
+import Papa from "papaparse";
 
 interface Props {
-    chartData: CrimeStatistics[];
-    years: number[];
-}     
+    year: number;
+}
 
 const ColumnChart = (props: Props) => {
-    const { chartData, years } = props;
+    const { year } = props;
     const ColumnChartRef = useRef<HighchartsReact.RefObject>(null);
+    var csv_data: any = [];
+    var chart_data: any = {
+        categories: [],
+        data: []
+    }
 
-    const options: Highcharts.Options = {
+    Papa.parse(`https://raw.githubusercontent.com/ebaustria/crime-data/main/data/BKA_DD_${year}.csv`, {
+        header: true,
+        download: true,
+        complete: function(results: any) {
+            csv_data = results;
+            results.data.forEach((element: any) => {
+                chart_data.categories.push(element['Straftat']);
+                chart_data.data.push(
+                    {
+                        y: element['Anzahl erfasster Fälle']
+                    }
+                );
+            });
+        }
+    });
+
+    var options: Highcharts.Options = {
         chart: {
             type: 'column',
             zoomType: "y"
         },
         title: {
-            text: 'Column Chart Title'
+            text: `Column Chart Title ${year}`
         },
         xAxis: {
             categories: [
@@ -65,8 +86,6 @@ const ColumnChart = (props: Props) => {
                 {y: 19, color: '#a21636'},
                 {y: 560, color: '#ff0087'},
                 {y: 12320, color: '#dd9a9a'}
-                
-                
                 ],
             type: 'column',
 

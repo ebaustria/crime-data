@@ -208,7 +208,9 @@ function App() {
                 </div>
                 <div className="grid-cell">
                     { years[0] == years[1] &&
-                        <ColumnChart chartData={[]} years={[]}/>
+                        <ColumnChart 
+                            year = { years[0] }
+                        />
                     }
                 </div>
                 <div className="grid-cell">
