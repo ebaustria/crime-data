@@ -11,14 +11,14 @@
 
 .side-container {
   display: flex;
-  flex: 1;
+  flex: 2;
   height: 100%;
   flex-direction: column;
   align-items: center;
 }
 
 .central-container {
-  flex: 2;
+  flex: 3;
   height: 100%;
   flex-direction: column;
 }

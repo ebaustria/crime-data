@@ -4,12 +4,11 @@ import Map, {Layer, MapboxGeoJSONFeature, MapLayerMouseEvent, Source} from 'reac
 import "./styles/App.css";
 import { dataLayer } from "./map-style";
 import {
-    fetchGeoData,
-    getCrimeDataForNeighborhoods,
+    fetchGeoData, getCrimeDataForNeighborhoods,
     getNationalCrimeData, updateLocalPercentiles,
     updateNationalPercentiles,
 } from "./utils";
-import { NeighborhoodCrime, RawCrimeData, SelectMenuData, YearlyData } from "./models";
+import { RawCrimeData, SelectMenuData, YearlyData } from "./models";
 import StatisticSelect from "./components/StatisticSelect";
 import YearSlider from "./components/YearSlider";
 import MapTooltip from "./components/MapTooltip";
@@ -18,19 +17,16 @@ import StaticBarChart from "./diagrams/StaticBarChart";
 import AreaChart from "./diagrams/AreaChart";
 import PieChart from "./diagrams/PieChart";
 import {LocalStatistics, NationalStatistics} from "./models/statistics";
+import {SelectChangeEvent} from "@mui/material";
 
 function App() {
-    const [lng, setLng] = useState(13.7373);
-    const [lat, setLat] = useState(51.0504);
     const [zoom, setZoom] = useState(9.75);
     const [years, setYears] = useState([2020, 2020]);
     const [geoData, setGeoData] = useState(undefined);
     const [showLocalView, setShowLocalView] = useState(true);
     const [yearlyData, setYearlyData] = useState<YearlyData | undefined>(undefined);
     const [hoverInfo, setHoverInfo] = useState<{ feature: MapboxGeoJSONFeature; x: number; y: number; } | undefined>(undefined);
-    const [selectableStatistics, setSelectableStatistics] = useState<SelectMenuData[]>(LocalStatistics);
-    const [selectedStat, setSelectedStat] = useState<SelectMenuData>(selectableStatistics[0]);
-    // const allYears: string[] = ["2016", "2017", "2018", "2019", "2020"];
+    const [selectedStat, setSelectedStat] = useState<SelectMenuData>(LocalStatistics[0]);
 
     // This token is needed to display the map.
     const MAPBOX_TOKEN = "pk.eyJ1IjoiZXJpY2J1c2giLCJhIjoiY2thcXVzMGszMmJhZjMxcDY2Y2FrdXkwMSJ9.cwBqtbXpWJbtAEGli1AIIg";
@@ -41,8 +37,7 @@ function App() {
     }, []);
 
     useEffect(() => {
-        if (zoom <= 6 && showLocalView) {
-            setSelectableStatistics(NationalStatistics);
+        if (zoom <= 7 && showLocalView) {
             setSelectedStat(NationalStatistics[0]);
             setYears([2019, 2019]);
             Papa.parse("https://raw.githubusercontent.com/ebaustria/crime-data/15-additional-map-view/data/national_crime.csv", {
@@ -83,14 +78,13 @@ function App() {
             );
             return;
         }
-        if (zoom > 6 && !showLocalView) {
+        if (zoom > 7 && !showLocalView) {
             setShowLocalView(true);
             fetchLocalData();
         }
     }, [showLocalView, zoom]);
 
     const fetchLocalData = () => {
-        setSelectableStatistics(LocalStatistics);
         setSelectedStat(LocalStatistics[0]);
         setYears([2020, 2020]);
         // Load the crime data for Dresden's neighborhoods.
@@ -174,26 +168,36 @@ function App() {
         }
     }, [showLocalView, geoData, years, yearlyData, selectedStat]);
 
+    const handleChangeStatistics = (event: SelectChangeEvent, statistics: SelectMenuData[]) => {
+        setHoverInfo(undefined);
+        const newSelection = statistics.find(stat => stat.value === event.target.value);
+        if (newSelection) {
+            setSelectedStat(newSelection);
+        }
+    }
+
     return (
         <div className="app-container">
             <div className="side-container">
-                {/*{yearlyData &&*/}
-                {/*    <LineGraph*/}
-                {/*        chartData={allYears.map(year => yearlyData[year]["Insgesamt"])}*/}
-                {/*        years={allYears.map(year => parseInt(year))}*/}
-                {/*    />*/}
-                {/*}*/}
+                {yearlyData &&
+                    <LineGraph
+                        chartData={Object.keys(yearlyData).map(year => {
+                            return (yearlyData[year][showLocalView ? "Insgesamt" : "Total"]);
+                        })}
+                        years={Object.keys(yearlyData).map(year => parseInt(year))}
+                    />
+                }
                 <StaticBarChart chartData={[]} years={[]}/>
             </div>
             <div className="central-container">
                 <Map
                     initialViewState={{
-                        longitude: lng,
-                        latitude: lat,
+                        longitude: 13.7373,
+                        latitude: 51.0504,
                         zoom: zoom
                     }}
                     onZoom={e => setZoom(e.target.getZoom())}
-                    style={{height: 500}}
+                    style={{height: "50%"}}
                     mapStyle="mapbox://styles/mapbox/streets-v11"
                     onMouseMove={onHover}
                     interactiveLayerIds={['data']}
@@ -205,17 +209,18 @@ function App() {
                     {hoverInfo && <MapTooltip label={selectedStat.label} hoverInfo={hoverInfo} />}
                 </Map>
                 <div style={{flexDirection: "row", display: "flex"}}>
-                    <StatisticSelect
-                        onChange={(ev, child) => {
-                            const value: string = ev.target.value;
-                            setHoverInfo(undefined);
-                            const newSelection = selectableStatistics.find(stat => stat.value === value);
-                            if (newSelection) {
-                                setSelectedStat(newSelection);
-                            }
-                        }}
-                        values={selectableStatistics}
-                    />
+                    {(showLocalView && LocalStatistics.includes(selectedStat)) &&
+                        <StatisticSelect
+                            onChange={(event, child) => handleChangeStatistics(event, LocalStatistics)}
+                            values={LocalStatistics}
+                        />
+                    }
+                    {(!showLocalView && NationalStatistics.includes(selectedStat)) &&
+                        <StatisticSelect
+                            onChange={(event, child) => handleChangeStatistics(event, NationalStatistics)}
+                            values={NationalStatistics}
+                        />
+                    }
                     <YearSlider
                         min={showLocalView ? 2016 : 2017}
                         max={showLocalView ? 2020 : 2019}
