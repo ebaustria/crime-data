@@ -138,10 +138,9 @@ let getStaticBarChart = function() {
 let highlightFunction = function (point: any) {
     const clicked_category = point.category;
     const static_bar_chart = getStaticBarChart();
-    const series_index = -1;
 
-    static_bar_chart?.series.forEach((series, index) => {
-        if (series.name === clicked_category) {
+    static_bar_chart?.series.forEach((series) => {
+        if (series.name == clicked_category) {
             series.points.forEach(point => {
                 point.setState('hover');
             });
