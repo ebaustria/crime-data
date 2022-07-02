@@ -101,7 +101,7 @@ const StaticBarChart = (props: Props) => {
     }, []);
 
     return (
-        <div className="chart-container">
+        <div className="chart-container static-bar-chart">
             <HighchartsReact
                 ref={staticBarChartRef}
                 highcharts={Highcharts}

@@ -14,8 +14,8 @@ const MapTooltip = (props: Props) => {
         <div
             className="map-tooltip"
             style={{
-                left: hoverInfo.x + 1,
-                top: hoverInfo.y + 1,
+                left: hoverInfo.x + 5,
+                top: hoverInfo.y + 5,
             }}
         >
             <div style={{fontWeight: "bold"}}>{hoverInfo.feature.properties!.name}</div>

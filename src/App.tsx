@@ -18,9 +18,11 @@ import AreaChart from "./diagrams/AreaChart";
 import PieChart from "./diagrams/PieChart";
 import {LocalStatistics, NationalStatistics} from "./models/statistics";
 import {SelectChangeEvent} from "@mui/material";
+import PercChart from "./diagrams/PercChart";
+import ColumnChart from "./diagrams/ColumnChart";
 
 function App() {
-    const [zoom, setZoom] = useState(9.75);
+    const [zoom, setZoom] = useState(11);
     const [years, setYears] = useState([2020, 2020]);
     const [geoData, setGeoData] = useState(undefined);
     const [showLocalView, setShowLocalView] = useState(true);
@@ -37,7 +39,7 @@ function App() {
     }, []);
 
     useEffect(() => {
-        if (zoom <= 7 && showLocalView) {
+        if (zoom <= 9 && showLocalView) {
             setSelectedStat(NationalStatistics[0]);
             setYears([2019, 2019]);
             Papa.parse("https://raw.githubusercontent.com/ebaustria/crime-data/15-additional-map-view/data/national_crime.csv", {
@@ -78,7 +80,7 @@ function App() {
             );
             return;
         }
-        if (zoom > 7 && !showLocalView) {
+        if (zoom > 9 && !showLocalView) {
             setShowLocalView(true);
             fetchLocalData();
         }
@@ -178,7 +180,11 @@ function App() {
 
     return (
         <div className="app-container">
-            <div className="side-container">
+            <div className="left-container">
+                <StaticBarChart chartData={[]} years={[]}/>
+
+                <div className="placeholder">density plot</div>
+
                 {yearlyData &&
                     <LineGraph
                         chartData={Object.keys(yearlyData).map(year => {
@@ -187,8 +193,8 @@ function App() {
                         years={Object.keys(yearlyData).map(year => parseInt(year))}
                     />
                 }
-                <StaticBarChart chartData={[]} years={[]}/>
             </div>
+
             <div className="central-container">
                 <Map
                     initialViewState={{
@@ -197,7 +203,6 @@ function App() {
                         zoom: zoom
                     }}
                     onZoom={e => setZoom(e.target.getZoom())}
-                    style={{height: "50%"}}
                     mapStyle="mapbox://styles/mapbox/streets-v11"
                     onMouseMove={onHover}
                     interactiveLayerIds={['data']}
@@ -208,7 +213,6 @@ function App() {
                     </Source>
                     {hoverInfo && <MapTooltip label={selectedStat.label} hoverInfo={hoverInfo} />}
                 </Map>
-                <div style={{flexDirection: "row", display: "flex"}}>
                     {(showLocalView && LocalStatistics.includes(selectedStat)) &&
                         <StatisticSelect
                             onChange={(event, child) => handleChangeStatistics(event, LocalStatistics)}
@@ -230,11 +234,26 @@ function App() {
                         }}
                         selectedStrings={years}
                     />
-                </div>
+
+                    <PercChart chartData={[]} years={[]}/>
             </div>
-            <div className="side-container">
-                <AreaChart chartData={[]} years={[]}/>
-                <PieChart chartData={[]} years={[]}/>
+            <div className="right-container">
+                <div className="grid-cell">
+                    { years[0] === years[1]
+                        ? <PieChart/>
+                        : <AreaChart chartData={[]} years={[]}/>
+                    }
+                </div>
+                <div className="grid-cell">
+                    { years[0] === years[1] &&
+                        <ColumnChart
+                            year = { years[0] }
+                        />
+                    }
+                </div>
+                <div className="grid-cell">
+
+                </div>
             </div>
         </div>
     );

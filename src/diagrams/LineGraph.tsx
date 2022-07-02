@@ -72,7 +72,39 @@ const LineGraph = (props: Props) => {
                 text: "Occurrences",
             },
         },
+
+        xAxis: {
+            crosshair: true
+        },
+
         series: someFunction(),
+
+        tooltip: {
+            headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+            pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                '<td style="padding:0"><b>{point.y:.1f} cases</b></td></tr>',
+            footerFormat: '</table>',
+            shared: true,
+            useHTML: true
+        },
+
+        plotOptions: {
+            series: {
+                point: {
+                    events: {
+                        click: function() {
+                            console.log(this.category);
+                        },
+                        mouseOver() {
+                            highlightFunction(this);
+                        },
+                        mouseOut() {
+                            hideFunction()
+                        }
+                    }
+                }
+            }
+        }
     }
 
     return (
@@ -85,5 +117,50 @@ const LineGraph = (props: Props) => {
         </div>
     );
 };
+
+// ------------------------------------------------
+
+let getStaticBarChart = function() {
+    let static_bar_chart_index = -1;
+
+    Highcharts.charts.forEach((chart, index) => {
+        if (chart !== undefined) {
+            let container: any = chart?.container;
+            while (!container?.classList.contains('chart-container')) container = container.parentNode;
+            if (container.classList.contains('static-bar-chart')) static_bar_chart_index = index;
+            
+        }
+    });
+    if (static_bar_chart_index === -1) return null;
+    return Highcharts.charts[static_bar_chart_index];
+}
+
+let highlightFunction = function (point: any) {
+    const clicked_category = point.category;
+    const static_bar_chart = getStaticBarChart();
+    const series_index = -1;
+
+    static_bar_chart?.series.forEach((series, index) => {
+        if (series.name === clicked_category) {
+            series.points.forEach(point => {
+                point.setState('hover');
+            });
+        } else {
+            series.points.forEach(point => {
+                point.setState('inactive');
+            });
+        }
+    });
+}
+
+let hideFunction = function () {
+    const static_bar_chart = getStaticBarChart();
+
+    static_bar_chart?.series.forEach(series => {
+        series.points.forEach(point => {
+            point.setState('normal');
+        });
+    });
+}
 
 export default LineGraph;
