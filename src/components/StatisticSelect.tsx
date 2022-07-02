@@ -10,6 +10,7 @@ interface Props {
 
 const StatisticSelect = (props: Props) => {
     const { values, onChange } = props;
+
     return (
         <Select className="select" defaultValue={values[0].value} onChange={onChange}>
             {values.map(val => {

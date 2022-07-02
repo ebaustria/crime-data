@@ -3,8 +3,12 @@ import Papa from "papaparse";
 import Map, {Layer, MapboxGeoJSONFeature, MapLayerMouseEvent, Source} from 'react-map-gl';
 import "./styles/App.css";
 import { dataLayer } from "./map-style";
-import { updatePercentiles } from "./utils";
-import { NeighborhoodCrime, RawCrimeData, SelectMenuData, YearlyData } from "./models";
+import {
+    fetchGeoData, getCrimeDataForNeighborhoods,
+    getNationalCrimeData, updateLocalPercentiles,
+    updateNationalPercentiles,
+} from "./utils";
+import { RawCrimeData, SelectMenuData, YearlyData } from "./models";
 import StatisticSelect from "./components/StatisticSelect";
 import YearSlider from "./components/YearSlider";
 import MapTooltip from "./components/MapTooltip";
@@ -12,44 +16,84 @@ import LineGraph from "./diagrams/LineGraph";
 import StaticBarChart from "./diagrams/StaticBarChart";
 import AreaChart from "./diagrams/AreaChart";
 import PieChart from "./diagrams/PieChart";
+import {LocalStatistics, NationalStatistics} from "./models/statistics";
+import {SelectChangeEvent} from "@mui/material";
 import PercChart from "./diagrams/PercChart";
 import ColumnChart from "./diagrams/ColumnChart";
 
-
 function App() {
-    const [lng, setLng] = useState(13.7373);
-    const [lat, setLat] = useState(51.0504);
-    const [zoom, setZoom] = useState(9.75);
+    const [zoom, setZoom] = useState(11);
     const [years, setYears] = useState([2020, 2020]);
     const [geoData, setGeoData] = useState(undefined);
-    const [allCrimeData, setAllCrimeData] = useState<RawCrimeData[] | undefined>(undefined);
+    const [showLocalView, setShowLocalView] = useState(true);
     const [yearlyData, setYearlyData] = useState<YearlyData | undefined>(undefined);
     const [hoverInfo, setHoverInfo] = useState<{ feature: MapboxGeoJSONFeature; x: number; y: number; } | undefined>(undefined);
-    const [selectedStat, setSelectedStat] = useState<SelectMenuData>({label: "Total cases", value: "totalCases"});
-    const allYears: string[] = ["2016", "2017", "2018", "2019", "2020"];
+    const [selectedStat, setSelectedStat] = useState<SelectMenuData>(LocalStatistics[0]);
 
     // This token is needed to display the map.
     const MAPBOX_TOKEN = "pk.eyJ1IjoiZXJpY2J1c2giLCJhIjoiY2thcXVzMGszMmJhZjMxcDY2Y2FrdXkwMSJ9.cwBqtbXpWJbtAEGli1AIIg";
 
-    const getYearsRange = (): number[] => {
-        let result: number[] = [];
-        for (let i = years[0]; i <= years[1]; i++) {
-            if (!result.includes(i)) {
-                result.push(i);
-            }
-        }
-        return result;
-    };
+    useEffect(() => {
+        setShowLocalView(true);
+        fetchLocalData();
+    }, []);
 
     useEffect(() => {
+        if (zoom <= 9 && showLocalView) {
+            setSelectedStat(NationalStatistics[0]);
+            setYears([2019, 2019]);
+            Papa.parse("https://raw.githubusercontent.com/ebaustria/crime-data/15-additional-map-view/data/national_crime.csv", {
+                header: true,
+                download: true,
+                complete: function(results) {
+                    const [statistics2017, statistics2018, statistics2019] =
+                        (results.data as RawCrimeData[]).reduce((result, element) => {
+                            let index;
+                            switch (element["Jahr"]) {
+                                case "2017":
+                                    index = 0;
+                                    break;
+                                case "2018":
+                                    index = 1;
+                                    break;
+                                default:
+                                    index = 2;
+                                    break;
+                            }
+                            // @ts-ignore
+                            result[index].push(element);
+                            return result;
+                        }, [[], [], []]);
+                    setYearlyData({
+                        "2019": getNationalCrimeData(statistics2019),
+                        "2018": getNationalCrimeData(statistics2018),
+                        "2017": getNationalCrimeData(statistics2017),
+                    });
+                }
+            });
+            fetchGeoData(
+                "https://raw.githubusercontent.com/blackmad/neighborhoods/master/germany.geojson",
+                json => {
+                    setGeoData(json);
+                    setShowLocalView(false);
+                }
+            );
+            return;
+        }
+        if (zoom > 9 && !showLocalView) {
+            setShowLocalView(true);
+            fetchLocalData();
+        }
+    }, [showLocalView, zoom]);
+
+    const fetchLocalData = () => {
+        setSelectedStat(LocalStatistics[0]);
+        setYears([2020, 2020]);
         // Load the crime data for Dresden's neighborhoods.
         Papa.parse("https://raw.githubusercontent.com/ebaustria/crime-data/main/data/neighborhoods_crime.csv", {
             header: true,
             download: true,
             complete: function(results) {
-                // Save the complete data set in a variable so we can use it for static diagrams and other things.
-                setAllCrimeData(results.data as RawCrimeData[]);
-
                 const [statistics2016, statistics2017, statistics2018, statistics2019, statistics2020] =
                     (results.data as RawCrimeData[]).reduce((result, element) => {
                         let index;
@@ -84,14 +128,13 @@ function App() {
             }
         });
 
-        // Fetch the GeoJSON data for Dresden's neighborhoods. This is needed to draw the polygons on the map.
-        fetch(
-            "https://raw.githubusercontent.com/offenesdresden/GeoData/master/Stadtteile-Dresden.geojson"
-        )
-            .then(resp => resp.json())
-            .then(json => setGeoData(json))
-            .catch(err => console.error('Could not load data', err)); // eslint-disable-line
-    }, []);
+        fetchGeoData(
+            "https://raw.githubusercontent.com/offenesdresden/GeoData/master/Stadtteile-Dresden.geojson",
+            json => {
+                setGeoData(json);
+            }
+        );
+    }
 
     const onHover = useCallback((event: MapLayerMouseEvent) => {
         const {
@@ -105,42 +148,35 @@ function App() {
     }, []);
 
     const data = useMemo(() => {
-        return geoData && yearlyData && updatePercentiles(
-            geoData,
-            // @ts-ignore
-            f => [f.properties.name, f.properties.official_name],
-            yearlyData,
-            selectedStat.value,
-            getYearsRange()
-        );
-    }, [geoData, years, yearlyData, selectedStat]);
-
-    const getCrimeDataForNeighborhoods = (rawCrimeDataList: RawCrimeData[]): NeighborhoodCrime => {
-        const result: NeighborhoodCrime = {};
-        rawCrimeDataList.forEach(rawCrimeData => {
-            // @ts-ignore
-            const key = rawCrimeData["Stadtteil (zusammengefasst)"].replace(/[0-9]/g, '').trim();
-            // @ts-ignore
-            const totalCases = rawCrimeData["Fälle erfasst"];
-            // @ts-ignore
-            const solvedCases = rawCrimeData["Fälle aufgeklärt"];
-            // @ts-ignore
-            const suspects = rawCrimeData["Tatverdächtige insgesamt"];
-            result[key] = {totalCases, solvedCases, suspects};
-        });
-        return result;
-    };
-
-    const getLabelForStatistic = (stat: string): string => {
-        switch (stat) {
-            case "totalCases":
-                return "Total cases";
-            case "solvedCases":
-                return "Solved cases";
-            default:
-                return "Suspects";
+        if (showLocalView) {
+            return geoData && yearlyData && updateLocalPercentiles(
+                geoData,
+                // @ts-ignore
+                f => [f.properties.name, f.properties.official_name],
+                yearlyData,
+                selectedStat.value,
+                years
+            );
         }
-    };
+        if (!showLocalView) {
+            return geoData && yearlyData && updateNationalPercentiles(
+                geoData,
+                // @ts-ignore
+                f => f.properties.name,
+                yearlyData,
+                selectedStat.value,
+                years
+            );
+        }
+    }, [showLocalView, geoData, years, yearlyData, selectedStat]);
+
+    const handleChangeStatistics = (event: SelectChangeEvent, statistics: SelectMenuData[]) => {
+        setHoverInfo(undefined);
+        const newSelection = statistics.find(stat => stat.value === event.target.value);
+        if (newSelection) {
+            setSelectedStat(newSelection);
+        }
+    }
 
     return (
         <div className="app-container">
@@ -151,8 +187,10 @@ function App() {
 
                 {yearlyData &&
                     <LineGraph
-                        chartData={allYears.map(year => yearlyData[year]["Insgesamt"])}
-                        years={allYears.map(year => parseInt(year))}
+                        chartData={Object.keys(yearlyData).map(year => {
+                            return (yearlyData[year][showLocalView ? "Insgesamt" : "Total"]);
+                        })}
+                        years={Object.keys(yearlyData).map(year => parseInt(year))}
                     />
                 }
             </div>
@@ -160,10 +198,11 @@ function App() {
             <div className="central-container">
                 <Map
                     initialViewState={{
-                        longitude: lng,
-                        latitude: lat,
+                        longitude: 13.7373,
+                        latitude: 51.0504,
                         zoom: zoom
                     }}
+                    onZoom={e => setZoom(e.target.getZoom())}
                     mapStyle="mapbox://styles/mapbox/streets-v11"
                     onMouseMove={onHover}
                     interactiveLayerIds={['data']}
@@ -174,50 +213,48 @@ function App() {
                     </Source>
                     {hoverInfo && <MapTooltip label={selectedStat.label} hoverInfo={hoverInfo} />}
                 </Map>
-
-                <StatisticSelect
-                        onChange={(ev, child) => {
-                            const value: string = ev.target.value;
-                            setHoverInfo(undefined);
-                            setSelectedStat({label: getLabelForStatistic(value), value});
-                        }}
-                        values={[
-                            {label: "Total cases", value: "totalCases"},
-                            {label: "Solved cases", value: "solvedCases"},
-                            {label: "Suspects", value: "suspects"}
-                        ]}
-                    />
-
-                <YearSlider
+                    {(showLocalView && LocalStatistics.includes(selectedStat)) &&
+                        <StatisticSelect
+                            onChange={(event, child) => handleChangeStatistics(event, LocalStatistics)}
+                            values={LocalStatistics}
+                        />
+                    }
+                    {(!showLocalView && NationalStatistics.includes(selectedStat)) &&
+                        <StatisticSelect
+                            onChange={(event, child) => handleChangeStatistics(event, NationalStatistics)}
+                            values={NationalStatistics}
+                        />
+                    }
+                    <YearSlider
+                        min={showLocalView ? 2016 : 2017}
+                        max={showLocalView ? 2020 : 2019}
                         onChange={(ev, value, activeThumb) => {
                             setHoverInfo(undefined);
                             setYears(value as number[]);
                         }}
                         selectedStrings={years}
-                />
+                    />
 
-                <PercChart chartData={[]} years={[]}/>
+                    <PercChart chartData={[]} years={[]}/>
             </div>
-
             <div className="right-container">
                 <div className="grid-cell">
-                    { years[0] == years[1] 
+                    { years[0] === years[1]
                         ? <PieChart/>
                         : <AreaChart chartData={[]} years={[]}/>
                     }
                 </div>
                 <div className="grid-cell">
-                    { years[0] == years[1] &&
-                        <ColumnChart 
+                    { years[0] === years[1] &&
+                        <ColumnChart
                             year = { years[0] }
                         />
                     }
                 </div>
                 <div className="grid-cell">
 
-                </div> 
-            </div>                   
-               
+                </div>
+            </div>
         </div>
     );
 }

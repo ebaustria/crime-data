@@ -1,18 +1,62 @@
 import React, { useEffect, useRef } from "react";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
-import { CrimeStatistics } from "../models";
+import {CrimeStatistics, RawCrimeData} from "../models";
 import { zip } from "../utils";
 import "../styles/diagrams.css";
 
 interface Props {
-    chartData: CrimeStatistics[];
+    chartData: (RawCrimeData | CrimeStatistics)[];
     years: number[];
 }
 
 const LineGraph = (props: Props) => {
     const { chartData, years } = props;
     const lineChartRef = useRef<HighchartsReact.RefObject>(null);
+
+    useEffect(() => {
+        if (lineChartRef.current) {
+            const container = lineChartRef.current.container.current as HTMLDivElement;
+            container.style.height = "100%";
+            container.style.width = "100%";
+            lineChartRef.current.chart.reflow();
+        }
+    }, []);
+
+    // @ts-ignore
+    if (chartData.includes(undefined)) {
+        return null;
+    }
+
+    const someFunction = (): Highcharts.SeriesOptionsType[] => {
+        if (years.length < 4) {
+            return ([
+                {
+                    name: "Total Cases",
+                    type: "spline",
+                    data: zip(years, chartData.map(element => Object.values(element)
+                        .reduce((accumulator, cases) => accumulator + parseInt(cases), 0))),
+                },
+            ]);
+        }
+        return ([
+            {
+                name: "Total Cases",
+                type: "spline",
+                data: zip(years, chartData.map(element => parseInt(element.totalCases)))
+            },
+            {
+                name: "Solved Cases",
+                type: "spline",
+                data: zip(years, chartData.map(element => parseInt(element.solvedCases)))
+            },
+            {
+                name: "Suspects",
+                type: "spline",
+                data: zip(years, chartData.map(element => parseInt(element.suspects)))
+            }
+        ]);
+    };
 
     const options: Highcharts.Options = {
         chart: {
@@ -33,23 +77,7 @@ const LineGraph = (props: Props) => {
             crosshair: true
         },
 
-        series: [
-            {
-                name: "Total Cases",
-                type: "spline",
-                data: zip(years, chartData.map(element => parseInt(element.totalCases)))
-            },
-            {
-                name: "Solved Cases",
-                type: "spline",
-                data: zip(years, chartData.map(element => parseInt(element.solvedCases)))
-            },
-            {
-                name: "Suspects",
-                type: "spline",
-                data: zip(years, chartData.map(element => parseInt(element.suspects)))
-            }
-        ],
+        series: someFunction(),
 
         tooltip: {
             headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
@@ -63,31 +91,22 @@ const LineGraph = (props: Props) => {
         plotOptions: {
             series: {
                 point: {
-                  events: {
-                    click: function() {
-                      console.log(this.category);
-                    },
-                    mouseOver() {
-                        highlightFunction(this);
-                    },
-                    mouseOut() {
-                        hideFunction()
+                    events: {
+                        click: function() {
+                            console.log(this.category);
+                        },
+                        mouseOver() {
+                            highlightFunction(this);
+                        },
+                        mouseOut() {
+                            hideFunction()
+                        }
                     }
-                  }
                 }
-              }
+            }
         }
     }
 
-    useEffect(() => {
-        if (lineChartRef.current) {
-            const container = lineChartRef.current.container.current as HTMLDivElement;
-            container.style.height = "100%";
-            container.style.width = "100%";
-            lineChartRef.current.chart.reflow();
-        }
-    }, []);
-    
     return (
         <div className="chart-container">
             <HighchartsReact
@@ -102,27 +121,27 @@ const LineGraph = (props: Props) => {
 // ------------------------------------------------
 
 let getStaticBarChart = function() {
-    var static_bar_chart_index = -1;
+    let static_bar_chart_index = -1;
 
     Highcharts.charts.forEach((chart, index) => {
-        if (chart != undefined) {
-            var container: any = chart?.container;
+        if (chart !== undefined) {
+            let container: any = chart?.container;
             while (!container?.classList.contains('chart-container')) container = container.parentNode;
             if (container.classList.contains('static-bar-chart')) static_bar_chart_index = index;
             
         }
     });
-    if (static_bar_chart_index == -1) return null;
+    if (static_bar_chart_index === -1) return null;
     return Highcharts.charts[static_bar_chart_index];
 }
 
 let highlightFunction = function (point: any) {
-    var clicked_category = point.category;
-    var static_bar_chart = getStaticBarChart();
-    var series_index = -1;
-    
+    const clicked_category = point.category;
+    const static_bar_chart = getStaticBarChart();
+    const series_index = -1;
+
     static_bar_chart?.series.forEach((series, index) => {
-        if (series.name == clicked_category) {
+        if (series.name === clicked_category) {
             series.points.forEach(point => {
                 point.setState('hover');
             });
@@ -135,7 +154,7 @@ let highlightFunction = function (point: any) {
 }
 
 let hideFunction = function () {
-    var static_bar_chart = getStaticBarChart();
+    const static_bar_chart = getStaticBarChart();
 
     static_bar_chart?.series.forEach(series => {
         series.points.forEach(point => {

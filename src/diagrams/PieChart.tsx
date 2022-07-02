@@ -83,27 +83,27 @@ const PieChart = () => {
 // ---------------------------------------------------
 
 let getColumnChart = function() {
-    var pie_chart_index = -1;
+    let pie_chart_index = -1;
 
     Highcharts.charts.forEach((chart, index) => {
-        if (chart != undefined) {
-            var container: any = chart?.container;
+        if (chart !== undefined) {
+            let container: any = chart?.container;
             while (!container?.classList.contains('chart-container')) container = container.parentNode;
             if (container.classList.contains('column-chart')) pie_chart_index = index;
             
         }
     });
-    if (pie_chart_index == -1) return null;
+    if (pie_chart_index === -1) return null;
     return Highcharts.charts[pie_chart_index];
 }
 
 let highlightFunction = function(point: any) {
-    var clicked_category = point.name;
-    var column_chart = getColumnChart();
+    const clicked_category = point.name;
+    const column_chart = getColumnChart();
     if (column_chart == null) return ;
 
     column_chart?.series[0].points.forEach(point => {
-        if (point.category == clicked_category) {
+        if (point.category === clicked_category) {
             point.setState('hover');
             point.series.chart.tooltip.refresh(point);
         } else {
@@ -113,7 +113,7 @@ let highlightFunction = function(point: any) {
 };
 
 let hideFunction = function () {
-    var column_chart = getColumnChart();
+    const column_chart = getColumnChart();
 
     column_chart?.series[0].points.forEach(point => {
         point.setState('normal');

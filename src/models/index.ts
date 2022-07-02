@@ -2,6 +2,10 @@ export interface NeighborhoodCrime {
     [neighborhood: string]: CrimeStatistics;
 }
 
+export interface NationalCrime {
+    [crimeCategory: string]: RawCrimeData;
+}
+
 export interface CrimeStatistics {
     totalCases: string;
     solvedCases: string;
@@ -9,7 +13,7 @@ export interface CrimeStatistics {
 }
 
 export interface YearlyData {
-    [year: string]: NeighborhoodCrime;
+    [year: string]: NeighborhoodCrime | NationalCrime;
 }
 
 export interface RawCrimeData {
