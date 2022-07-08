@@ -2,9 +2,9 @@ import React, {useEffect, useState, useMemo, useCallback} from "react";
 import Papa from "papaparse";
 import Map, {Layer, MapboxGeoJSONFeature, MapLayerMouseEvent, Source} from 'react-map-gl';
 import "./styles/App.css";
-import { dataLayer } from "./map-style";
 import {
     fetchGeoData, getCrimeDataForNeighborhoods,
+    getDataLayer,
     getNationalCrimeData, updateLocalPercentiles,
     updateNationalPercentiles,
 } from "./utils";
@@ -209,7 +209,7 @@ function App() {
                     mapboxAccessToken={MAPBOX_TOKEN}
                 >
                     <Source type="geojson" data={data}>
-                        <Layer {...dataLayer} />
+                        <Layer {...getDataLayer(selectedStat.value)} />
                     </Source>
                     {hoverInfo && <MapTooltip label={selectedStat.label} hoverInfo={hoverInfo} />}
                 </Map>

@@ -3,6 +3,9 @@ import { scaleQuantile } from 'd3-scale';
 
 import type GeoJSON from 'geojson';
 import {CrimeStatistics, NationalCrime, NeighborhoodCrime, RawCrimeData, YearlyData} from "./models";
+import {FillLayer} from "react-map-gl";
+import {greenGradient, redGradient} from "./models/colors";
+import { statePopulations } from './models/population';
 
 /** Calculates percentiles of administrative districts (neighborhoods, city districts, etc.) for a given crime
  * statistic. */
@@ -17,7 +20,7 @@ export function updateLocalPercentiles(
     const scale = scaleQuantile().domain(Object.values(crimeData)
         .flatMap(crime => Object.values(crime)
         .map(stats => parseInt(stats[selectedStat]))))
-        .range(range(9));
+        .range(range(6));
     return {
         type: 'FeatureCollection',
         features: features.map(f => {
@@ -44,7 +47,7 @@ export function updateNationalPercentiles(
     const scale = scaleQuantile().domain(Object.values(crimeData)
         .flatMap(nationalCrime => Object.values(nationalCrime[selectedStat])
         .flatMap(stat => parseInt(stat as string))))
-        .range(range(9));
+        .range(range(6));
     return {
         type: 'FeatureCollection',
         features: features.map(f => {
@@ -93,6 +96,8 @@ const getValueForState = (state: string, crimeData: YearlyData, selectedStat: st
             }
         }
     });
+    // @ts-ignore
+    // return Math.round(total / statePopulations[state]);
     return total;
 }
 
@@ -144,6 +149,21 @@ export const getNationalCrimeData = (rawCrimeDataList: RawCrimeData[]): National
         result[crimeCategory] = federalStates;
     });
     return result;
+};
+
+/** Color scale for the percentiles of the crime statistics */
+export const getDataLayer = (selectedStat: string): FillLayer => {
+    return {
+        id: 'data',
+        type: 'fill',
+        paint: {
+            'fill-color': {
+                property: 'percentile',
+                stops: selectedStat === "solvedCases" ? greenGradient : redGradient,
+            },
+            'fill-opacity': 0.8
+        }
+    };
 };
 
 export const zip = (firstArray: any[], secondArray: any[]) => firstArray.map((k, i) => [k, secondArray[i]]);
