@@ -1,41 +1,35 @@
 import React, { useEffect, useRef } from "react";
-import Highcharts from "highcharts";
+import Highcharts, { chart } from "highcharts";
 import HighchartsReact from "highcharts-react-official";
-import { CrimeStatistics } from "../models";
-import { zip } from "../utils";
 import "../styles/diagrams.css";
-import { cardClasses } from "@mui/material";
-import PieChart from './PieChart';
-import Papa from "papaparse";
+import { CrimeCategoryColors } from "../models/colors"
 
 interface Props {
     year: number;
+    chartData: any;
 }
 
+console.log(CrimeCategoryColors);
+
 const ColumnChart = (props: Props) => {
-    const { year } = props;
+    const { year, chartData } = props;
     const ColumnChartRef = useRef<HighchartsReact.RefObject>(null);
-    let csv_data: any = [];
-    const chart_data: any = {
+    var chart_data: any = {
         categories: [],
         data: []
     };
 
-    Papa.parse(`https://raw.githubusercontent.com/ebaustria/crime-data/main/data/BKA_DD_${year}.csv`, {
-        header: true,
-        download: true,
-        complete: function(results: any) {
-            csv_data = results;
-            results.data.forEach((element: any) => {
-                chart_data.categories.push(element['Straftat']);
-                chart_data.data.push(
-                    {
-                        y: element['Anzahl erfasster Fälle']
-                    }
-                );
-            });
-        }
-    });
+    if (chartData != undefined) {
+        chartData[year].forEach((element: any) => {
+            chart_data.categories.push(element['Straftat']);
+            chart_data.data.push(
+                {
+                    y: parseInt(element['Anzahl erfasster Fälle']),
+                    color: CrimeCategoryColors[element['Straftat']]
+                }
+            );
+        });
+    }
 
     const options: Highcharts.Options = {
         chart: {
@@ -46,18 +40,7 @@ const ColumnChart = (props: Props) => {
             text: `Column Chart Title ${year}`
         },
         xAxis: {
-            categories: [
-                'Vergewaltigung, sexuelle Nötigung und sexueller Übergriff',
-                'Raub, räuberische Erpressung und räuberischer Angriff',
-                'Körperverletzung',
-                'Diebstahl',
-                'Betrug',
-                'Sachbeschädigung',
-                'Rauschgiftdelikte',
-                'Mord, Totschlag und Tötung auf Verlangen',
-                'Cybercrime',
-                'Straßenkriminalität',
-            ],
+            categories: chart_data.categories,
             crosshair: true
         },
         yAxis: {
@@ -75,18 +58,8 @@ const ColumnChart = (props: Props) => {
             useHTML: true
         },
         series: [{
-            name: "2015",
-            data: [{y: 11, color: '#ce7e2b'},
-                {y: 50, color: '#247672'},
-                {y: 2871, color: '#633d30'},
-                {y: 26940, color: '#338821'},
-                {y: 11165, color: '#a1d832'},
-                {y: 4839, color: '#a1def0'},
-                {y: 1993, color: '#f3d426'},
-                {y: 19, color: '#a21636'},
-                {y: 560, color: '#ff0087'},
-                {y: 12320, color: '#dd9a9a'}
-            ],
+            name: `${year}`,
+            data: chart_data.data,
             type: 'column',
 
             point: {
@@ -100,7 +73,8 @@ const ColumnChart = (props: Props) => {
                 }
             }
 
-        }]
+        }],
+        legend:{ enabled:false }
 
     };
 
