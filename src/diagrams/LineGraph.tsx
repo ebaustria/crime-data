@@ -28,7 +28,7 @@ const LineGraph = (props: Props) => {
         return null;
     }
 
-    const someFunction = (): Highcharts.SeriesOptionsType[] => {
+    const parseData = (): Highcharts.SeriesOptionsType[] => {
         if (years.length < 4) {
             return ([
                 {
@@ -77,7 +77,7 @@ const LineGraph = (props: Props) => {
             crosshair: true
         },
 
-        series: someFunction(),
+        series: parseData(),
 
         tooltip: {
             headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
