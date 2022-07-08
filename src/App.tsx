@@ -271,7 +271,10 @@ function App() {
             <div className="right-container">
                 <div className="grid-cell">
                     { years[0] === years[1]
-                        ? <PieChart/>
+                        ? <PieChart
+                            year = { years[0] }
+                            chartData = { bkaData }
+                        />
                         : <AreaChart chartData={[]} years={[]}/>
                     }
                 </div>

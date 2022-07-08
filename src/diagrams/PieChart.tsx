@@ -1,18 +1,28 @@
 import React, { useEffect, useRef } from "react";
-import Highcharts from "highcharts";
+import Highcharts, { chart } from "highcharts";
 import HighchartsReact from "highcharts-react-official";
-import { CrimeStatistics } from "../models";
-import { zip } from "../utils";
 import "../styles/diagrams.css";
-import { cardClasses } from "@mui/material";
+import { CrimeCategoryColors } from "../models/colors"
 
 interface Props {
-    chartData: CrimeStatistics[];
-    years: number[];
+    year: number;
+    chartData: any;
 }     
 
-const PieChart = () => {
+const PieChart = (props: Props) => {
+    const { year, chartData } = props;
     const PieChartRef = useRef<HighchartsReact.RefObject>(null);
+    var chart_data: any = [];
+
+    if (chartData != undefined) {
+        chartData[year].forEach((element: any) => {
+            chart_data.push({
+                y: parseInt(element['Anzahl erfasster Fälle']),
+                name: element['Straftat'],
+                color: CrimeCategoryColors[element['Straftat']]
+            });
+        });
+    }
 
     const options: Highcharts.Options = {
         chart: {
@@ -25,25 +35,14 @@ const PieChart = () => {
         tooltip: {        
             headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
             pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-                        '<td style="padding:0"><b>{point.y:.1f} cases</b></td></tr>',
+                        '<td style="padding:0"><b>{point.y} cases</b></td></tr>',
             footerFormat: '</table>',
             shared: true,
             useHTML: true
         },
         series: [{
             name: "2015",
-            data: [ { y: 11, name: "Vergewaltigung, sexuelle Nötigung und sexueller Übergriff", color: '#ce7e2b' }, 
-                    { y: 50, name: "Raub, räuberische Erpressung und räuberischer Angriff", color: '#247672' },
-                    { y: 2871, name: "Körperverletzung", color: '#633d30'},
-                    { y: 26940, name: "Diebstahl", color: '#338821'},
-                    { y: 11165, name: "Betrug", color: '#a1d832'},
-                    { y: 4839, name: "Sachbeschädigung", color: '#a1def0'},
-                    { y: 1993, name: "Rauschgiftdelikte", color: '#f3d426'},
-                    { y: 19, name: "Mord, Totschlag und Tötung auf Verlangen", color: '#a21636'},
-                    { y: 560, name: "Cybercrime", color: '#ff0087'},
-                    { y: 12320, name: "Straßenkriminalität", color: '#dd9a9a'},
-                
-                ],
+            data: chart_data,
             type: 'pie',
 
             point: {
