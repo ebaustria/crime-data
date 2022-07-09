@@ -5,7 +5,7 @@ import type GeoJSON from 'geojson';
 import {CrimeStatistics, NationalCrime, NeighborhoodCrime, RawCrimeData, YearlyData} from "./models";
 import {FillLayer} from "react-map-gl";
 import {greenGradient, redGradient} from "./models/colors";
-import { statePopulations } from './models/population';
+import { states } from './models/places';
 
 /** Calculates percentiles of administrative districts (neighborhoods, city districts, etc.) for a given crime
  * statistic. */
@@ -17,10 +17,21 @@ export function updateLocalPercentiles(
     years: number[]
 ): GeoJSON.FeatureCollection<GeoJSON.Geometry> {
     const {features} = featureCollection;
-    const scale = scaleQuantile().domain(Object.values(crimeData)
-        .flatMap(crime => Object.values(crime)
-        .map(stats => parseInt(stats[selectedStat]))))
-        .range(range(6));
+    const selectedYears = getYearsRange(years).map(year => crimeData[String(year)]);
+    const scaleData: number[] = [];
+    let neighborhoods: string[] = [];
+    if (selectedYears[0]) {
+        neighborhoods = Object.keys(selectedYears[0]);
+    }
+    neighborhoods.forEach(neighborhood => {
+        let newNumber = 0;
+        selectedYears.forEach(set => {
+            // @ts-ignore
+            newNumber = newNumber + parseInt(set[neighborhood][selectedStat]);
+        });
+        scaleData.push(newNumber);
+    });
+    const scale = scaleQuantile().domain(scaleData).range(range(6));
     return {
         type: 'FeatureCollection',
         features: features.map(f => {
@@ -44,10 +55,18 @@ export function updateNationalPercentiles(
     years: number[]
 ): GeoJSON.FeatureCollection<GeoJSON.Geometry> {
     const {features} = featureCollection;
-    const scale = scaleQuantile().domain(Object.values(crimeData)
-        .flatMap(nationalCrime => Object.values(nationalCrime[selectedStat])
-        .flatMap(stat => parseInt(stat as string))))
-        .range(range(6));
+    const selectedYears = getYearsRange(years).map(year => crimeData[String(year)]);
+    const occurrences = selectedYears.map(nationalCrime => nationalCrime[selectedStat]);
+    const scaleData: number[] = [];
+    states.forEach(state => {
+        let newNumber = 0;
+        occurrences.forEach(set => {
+            // @ts-ignore
+            newNumber = newNumber + parseInt(set[state]);
+        });
+        scaleData.push(newNumber);
+    });
+    const scale = scaleQuantile().domain(scaleData).range(range(6));
     return {
         type: 'FeatureCollection',
         features: features.map(f => {
