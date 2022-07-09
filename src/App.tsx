@@ -29,6 +29,7 @@ function App() {
     const [yearlyData, setYearlyData] = useState<YearlyData | undefined>(undefined);
     const [hoverInfo, setHoverInfo] = useState<{ feature: MapboxGeoJSONFeature; x: number; y: number; } | undefined>(undefined);
     const [selectedStat, setSelectedStat] = useState<SelectMenuData>(LocalStatistics[0]);
+    const [bkaData, setBkaData] = useState<any>(undefined);
 
     // This token is needed to display the map.
     const MAPBOX_TOKEN = "pk.eyJ1IjoiZXJpY2J1c2giLCJhIjoiY2thcXVzMGszMmJhZjMxcDY2Y2FrdXkwMSJ9.cwBqtbXpWJbtAEGli1AIIg";
@@ -36,6 +37,7 @@ function App() {
     useEffect(() => {
         setShowLocalView(true);
         fetchLocalData();
+        fetchBkaData();
     }, []);
 
     useEffect(() => {
@@ -85,6 +87,35 @@ function App() {
             fetchLocalData();
         }
     }, [showLocalView, zoom]);
+
+    const fetchBkaData = () => {
+
+        // Papa.parse(`https://raw.githubusercontent.com/ebaustria/crime-data/main/data/BKA_DD_2018.csv`, {
+        //     header: true,
+        //     download: true,
+        //     complete: function(results) {
+        //         console.log(results.data);
+        //     }
+        // });
+
+        Papa.parse(`https://raw.githubusercontent.com/ebaustria/crime-data/main/data/BKA_DD_all_years.csv`, {
+            header: true,
+            download: true,
+            complete: function(results) {
+                var data: any = {};
+                results.data.forEach((element: any) => {
+                    if (data.hasOwnProperty(element['Jahr'])) {
+                        data[element['Jahr']].push(element);
+                    } else {
+                        data[element['Jahr']] = [];
+                        data[element['Jahr']].push(element);
+                    }
+                });
+
+                setBkaData(data);
+            }
+        });
+    }
 
     const fetchLocalData = () => {
         setSelectedStat(LocalStatistics[0]);
@@ -240,7 +271,10 @@ function App() {
             <div className="right-container">
                 <div className="grid-cell">
                     { years[0] === years[1]
-                        ? <PieChart/>
+                        ? <PieChart
+                            year = { years[0] }
+                            chartData = { bkaData }
+                        />
                         : <AreaChart chartData={[]} years={[]}/>
                     }
                 </div>
@@ -248,6 +282,7 @@ function App() {
                     { years[0] === years[1] &&
                         <ColumnChart
                             year = { years[0] }
+                            chartData = { bkaData }
                         />
                     }
                 </div>

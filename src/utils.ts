@@ -4,7 +4,7 @@ import { scaleQuantile } from 'd3-scale';
 import type GeoJSON from 'geojson';
 import {CrimeStatistics, NationalCrime, NeighborhoodCrime, RawCrimeData, YearlyData} from "./models";
 import {FillLayer} from "react-map-gl";
-import {greenGradient, redGradient} from "./models/colors";
+import {greenPalette, redPalette} from "./models/colors";
 import { states } from './models/places';
 
 /** Calculates percentiles of administrative districts (neighborhoods, city districts, etc.) for a given crime
@@ -174,7 +174,7 @@ export const getDataLayer = (selectedStat: string): FillLayer => {
         paint: {
             'fill-color': {
                 property: 'percentile',
-                stops: selectedStat === "solvedCases" ? greenGradient : redGradient,
+                stops: selectedStat === "solvedCases" ? greenPalette : redPalette,
             },
             'fill-opacity': 0.8
         }
