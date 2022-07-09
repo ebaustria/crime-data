@@ -4,6 +4,7 @@ import HighchartsReact from "highcharts-react-official";
 import {CrimeStatistics, RawCrimeData} from "../models";
 import { zip } from "../utils";
 import "../styles/diagrams.css";
+import {LineGraphPalette} from "../models/colors";
 
 interface Props {
     chartData: (RawCrimeData | CrimeStatistics)[];
@@ -36,6 +37,7 @@ const LineGraph = (props: Props) => {
                     type: "spline",
                     data: zip(years, chartData.map(element => Object.values(element)
                         .reduce((accumulator, cases) => accumulator + parseInt(cases), 0))),
+                    color: "#00886c",
                 },
             ]);
         }
@@ -43,17 +45,20 @@ const LineGraph = (props: Props) => {
             {
                 name: "Total Cases",
                 type: "spline",
-                data: zip(years, chartData.map(element => parseInt(element.totalCases)))
+                data: zip(years, chartData.map(element => parseInt(element.totalCases))),
+                color: LineGraphPalette.total,
             },
             {
                 name: "Solved Cases",
                 type: "spline",
-                data: zip(years, chartData.map(element => parseInt(element.solvedCases)))
+                data: zip(years, chartData.map(element => parseInt(element.solvedCases))),
+                color: LineGraphPalette.solved,
             },
             {
                 name: "Suspects",
                 type: "spline",
-                data: zip(years, chartData.map(element => parseInt(element.suspects)))
+                data: zip(years, chartData.map(element => parseInt(element.suspects))),
+                color: LineGraphPalette.suspects,
             }
         ]);
     };

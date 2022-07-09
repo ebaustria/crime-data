@@ -4,6 +4,7 @@ import HighchartsReact from "highcharts-react-official";
 import { CrimeStatistics } from "../models";
 import { zip } from "../utils";
 import "../styles/diagrams.css";
+import { BarChartPalette } from "../models/colors";
 
 interface Props {
     chartData: CrimeStatistics[];
@@ -50,27 +51,32 @@ const StaticBarChart = (props: Props) => {
             {
                 name: '2020',
                 type: 'column',
-                data: [11980, 7003, 3809, 1068, 973, 4005, 1825, 3966, 3322, 6294, 4684]
+                data: [11980, 7003, 3809, 1068, 973, 4005, 1825, 3966, 3322, 6294, 4684],
+                color: BarChartPalette["2020"],
             },
             {
                 name: '2019',
                 type: 'column',
-                data: [12390, 6938, 3450, 1138, 746, 4083, 1698, 3914, 2962, 5669, 3388]  
+                data: [12390, 6938, 3450, 1138, 746, 4083, 1698, 3914, 2962, 5669, 3388],
+                color: BarChartPalette["2019"],
             },
             {
                 name: '2018',
                 type: 'column',
-                data: [14215, 7935, 3477, 976, 803, 3813, 1578, 3971, 3270, 5081, 4033]
+                data: [14215, 7935, 3477, 976, 803, 3813, 1578, 3971, 3270, 5081, 4033],
+                color: BarChartPalette["2018"],
             },
             {
                 name: '2017',
                 type: 'column',
-                data: [14116, 8700, 4205, 1048, 978, 2865, 1725, 4461, 3888, 5321, 5503]
+                data: [14116, 8700, 4205, 1048, 978, 2865, 1725, 4461, 3888, 5321, 5503],
+                color: BarChartPalette["2017"],
             },
             {
                 name: '2016',
                 type: 'column',
-                data: [15946, 8713, 4518, 1283, 1049, 4799, 1821, 4865, 3980, 6386, 5300]
+                data: [15946, 8713, 4518, 1283, 1049, 4799, 1821, 4865, 3980, 6386, 5300],
+                color: BarChartPalette["2016"],
             }
         ],
     
