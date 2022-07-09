@@ -35,7 +35,7 @@ export function updateLocalPercentiles(
     return {
         type: 'FeatureCollection',
         features: features.map(f => {
-            const value = getValueForNeighborhood(accessor(f), crimeData, selectedStat, getYearsRange(years));
+            const value = getValueForNeighborhood(accessor(f), selectedYears, selectedStat);
             const properties = {
                 ...f.properties,
                 value,
@@ -70,7 +70,7 @@ export function updateNationalPercentiles(
     return {
         type: 'FeatureCollection',
         features: features.map(f => {
-            const value = getValueForState(accessor(f), crimeData, selectedStat, getYearsRange(years));
+            const value = getValueForState(accessor(f), selectedYears, selectedStat);
             const properties = {
                 ...f.properties,
                 value,
@@ -104,29 +104,25 @@ const getYearsRange = (years: number[]): number[] => {
 
 /** Finds the total number of occurrences of a given crime statistic in a given federal state of Germany
  * over one or more years. */
-const getValueForState = (state: string, crimeData: YearlyData, selectedStat: string, years: number[]): number => {
+const getValueForState = (state: string, crimeData: (NeighborhoodCrime | NationalCrime)[], selectedStat: string): number => {
     let total = 0;
-    Object.keys(crimeData).forEach(year => {
-        if (years.includes(parseInt(year))) {
-            const nationalCrime = crimeData[year] as NationalCrime;
-            const data = nationalCrime[selectedStat][state];
-            if (data) {
-                total += parseInt(data);
-            }
+    crimeData.forEach(dataSet => {
+        // @ts-ignore
+        const data = dataSet[selectedStat][state];
+        if (data) {
+            total += parseInt(data);
         }
     });
-    // @ts-ignore
-    // return Math.round(total / statePopulations[state]);
     return total;
 }
 
 /** Finds the total number of occurrences of a given crime statistic in a given neighborhood over one or more years. */
-const getValueForNeighborhood = (neighborhoodNames: string[], crimeData: YearlyData, selectedStat: string, years: number[]): number => {
+const getValueForNeighborhood = (neighborhoodNames: string[], crimeData: (NeighborhoodCrime | NationalCrime)[], selectedStat: string): number => {
     let total = 0;
-    Object.keys(crimeData).forEach(year => {
-        if (years.includes(parseInt(year))) {
+    crimeData.forEach(dataSet => {
+        if (dataSet) {
             // We check both "name" and "official_name" in case the name in the crime data matches one but not the other.
-            const data = crimeData[year][neighborhoodNames[0]] ?? crimeData[year][neighborhoodNames[1]];
+            const data = dataSet[neighborhoodNames[0]] ?? dataSet[neighborhoodNames[1]];
             if (data) {
                 total += parseInt(getStatistic(data as CrimeStatistics, selectedStat));
             }
