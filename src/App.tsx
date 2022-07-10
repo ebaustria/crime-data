@@ -20,6 +20,11 @@ import {LocalStatistics, NationalStatistics} from "./models/statistics";
 import {SelectChangeEvent} from "@mui/material";
 import PercChart from "./diagrams/PercChart";
 import ColumnChart from "./diagrams/ColumnChart";
+import RadarChart from "./diagrams/RadarChart";
+import Highcharts from "highcharts";
+import HC_more from "highcharts/highcharts-more";
+
+HC_more(Highcharts);
 
 function App() {
     const [zoom, setZoom] = useState(11);
@@ -270,7 +275,7 @@ function App() {
             </div>
             <div className="right-container">
                 <div className="grid-cell">
-                    { years[0] === years[1]
+                    {years[0] === years[1]
                         ? <PieChart
                             year = { years[0] }
                             chartData = { bkaData }
@@ -279,7 +284,7 @@ function App() {
                     }
                 </div>
                 <div className="grid-cell">
-                    { years[0] === years[1] &&
+                    {years[0] === years[1] &&
                         <ColumnChart
                             year = { years[0] }
                             chartData = { bkaData }
@@ -287,7 +292,7 @@ function App() {
                     }
                 </div>
                 <div className="grid-cell">
-
+                    <RadarChart chartData={[]} />
                 </div>
             </div>
         </div>
