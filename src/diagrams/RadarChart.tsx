@@ -1,9 +1,9 @@
 import React, { useEffect, useRef } from "react";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
-import { zip } from "../utils";
 import "../styles/diagrams.css";
 import {blueGreen} from "../models/colors";
+import {getColumnChart, getPieChart} from "../utils/charts";
 
 interface Props {
     year: number;
@@ -23,6 +23,7 @@ const RadarChart = (props: Props) => {
             chart_data.categories.push(element['Straftat']);
             chart_data.data.push(
                 {
+                    name: element['Straftat'],
                     y: parseInt(element['Anzahl erfasster Fälle']),
                 }
             );
@@ -37,6 +38,31 @@ const RadarChart = (props: Props) => {
             radarChartRef.current.chart.reflow();
         }
     }, []);
+
+    const mapDegreesToCategory = (degrees: string | number) => {
+        switch (degrees) {
+            case 0:
+                return chart_data.categories[0];
+            case 36:
+                return chart_data.categories[1];
+            case 72:
+                return chart_data.categories[2];
+            case 108:
+                return chart_data.categories[3];
+            case 144:
+                return chart_data.categories[4];
+            case 180:
+                return chart_data.categories[5];
+            case 216:
+                return chart_data.categories[6];
+            case 252:
+                return chart_data.categories[7];
+            case 288:
+                return chart_data.categories[8];
+            default:
+                return chart_data.categories[9];
+        }
+    }
 
     const options: Highcharts.Options = {
         chart: {
@@ -54,17 +80,24 @@ const RadarChart = (props: Props) => {
         },
 
         xAxis: {
-            // categories: chart_data.categories,
             tickInterval: 36,
-            min: 0,
-            max: 360,
             labels: {
-                format: '{value}°'
+                formatter: function() {
+                    return mapDegreesToCategory(this.value);
+                },
             }
         },
 
         yAxis: {
             min: 0
+        },
+
+        tooltip: {
+            pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                '<td style="padding:0"><b>{point.y} cases</b></td></tr>',
+            footerFormat: '</table>',
+            shared: true,
+            useHTML: true,
         },
 
         plotOptions: {
@@ -81,15 +114,63 @@ const RadarChart = (props: Props) => {
         series: [
             {
                 type: 'column',
-                name: 'Column',
+                name: `${year}`,
                 data: chart_data.data,
                 color: blueGreen,
+                point: {
+
+                    events: {
+                        mouseOver(e) {
+                            highlightFunction(this);
+                        },
+                        mouseOut() {
+                            hideFunction()
+                        }
+                    }
+                },
             },
         ],
+        legend: { enabled: false },
+    }
+
+    const highlightFunction = function(point: any) {
+        const clicked_category = mapDegreesToCategory(point.category);
+        const column_chart = getColumnChart();
+        const pie_chart = getPieChart();
+        if (column_chart === null || pie_chart === null) return;
+
+        column_chart?.series[0].points.forEach(point => {
+            if (point.category === clicked_category) {
+                point.setState('hover');
+                point.series.chart.tooltip.refresh(point);
+            } else {
+                point.setState('inactive');
+            }
+        });
+        pie_chart?.series[0].points.forEach(point => {
+            if (point.name === clicked_category) {
+                point.setState('hover');
+                point.series.chart.tooltip.refresh(point);
+            } else {
+                point.setState('inactive');
+            }
+        });
+    };
+
+    const hideFunction = function () {
+        const columnChart = getColumnChart();
+        const pie_chart = getPieChart();
+
+        columnChart?.series[0].points.forEach(point => {
+            point.setState('normal');
+        });
+        pie_chart?.series[0].points.forEach(point => {
+            point.setState('normal');
+        });
     }
 
     return (
-        <div className="chart-container">
+        <div className="chart-container radar-chart">
             <HighchartsReact
                 ref={radarChartRef}
                 highcharts={Highcharts}
@@ -98,49 +179,5 @@ const RadarChart = (props: Props) => {
         </div>
     );
 };
-
-// ------------------------------------------------
-
-// let getStaticBarChart = function() {
-//     let static_bar_chart_index = -1;
-//
-//     Highcharts.charts.forEach((chart, index) => {
-//         if (chart !== undefined) {
-//             let container: any = chart?.container;
-//             while (!container?.classList.contains('chart-container')) container = container.parentNode;
-//             if (container.classList.contains('static-bar-chart')) static_bar_chart_index = index;
-//
-//         }
-//     });
-//     if (static_bar_chart_index === -1) return null;
-//     return Highcharts.charts[static_bar_chart_index];
-// }
-//
-// let highlightFunction = function (point: any) {
-//     const clicked_category = point.category;
-//     const static_bar_chart = getStaticBarChart();
-//
-//     static_bar_chart?.series.forEach((series) => {
-//         if (series.name == clicked_category) {
-//             series.points.forEach(point => {
-//                 point.setState('hover');
-//             });
-//         } else {
-//             series.points.forEach(point => {
-//                 point.setState('inactive');
-//             });
-//         }
-//     });
-// }
-//
-// let hideFunction = function () {
-//     const static_bar_chart = getStaticBarChart();
-//
-//     static_bar_chart?.series.forEach(series => {
-//         series.points.forEach(point => {
-//             point.setState('normal');
-//         });
-//     });
-// }
 
 export default RadarChart;

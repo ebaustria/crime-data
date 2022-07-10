@@ -3,6 +3,7 @@ import Highcharts, { chart } from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 import "../styles/diagrams.css";
 import { CrimeCategoryColors } from "../models/colors"
+import {getColumnChart, getRadarChart} from "../utils/charts";
 
 interface Props {
     year: number;
@@ -81,28 +82,22 @@ const PieChart = (props: Props) => {
 
 // ---------------------------------------------------
 
-let getColumnChart = function() {
-    let pie_chart_index = -1;
-
-    Highcharts.charts.forEach((chart, index) => {
-        if (chart !== undefined) {
-            let container: any = chart?.container;
-            while (!container?.classList.contains('chart-container')) container = container.parentNode;
-            if (container.classList.contains('column-chart')) pie_chart_index = index;
-            
-        }
-    });
-    if (pie_chart_index === -1) return null;
-    return Highcharts.charts[pie_chart_index];
-}
-
 let highlightFunction = function(point: any) {
     const clicked_category = point.name;
     const column_chart = getColumnChart();
-    if (column_chart == null) return ;
+    const radarChart = getRadarChart();
+    if (column_chart === null || radarChart === null) return;
 
     column_chart?.series[0].points.forEach(point => {
         if (point.category === clicked_category) {
+            point.setState('hover');
+            point.series.chart.tooltip.refresh(point);
+        } else {
+            point.setState('inactive');
+        }
+    });
+    radarChart?.series[0].points.forEach(point => {
+        if (point.name === clicked_category) {
             point.setState('hover');
             point.series.chart.tooltip.refresh(point);
         } else {
@@ -113,8 +108,12 @@ let highlightFunction = function(point: any) {
 
 let hideFunction = function () {
     const column_chart = getColumnChart();
+    const radarChart = getRadarChart();
 
     column_chart?.series[0].points.forEach(point => {
+        point.setState('normal');
+    });
+    radarChart?.series[0].points.forEach(point => {
         point.setState('normal');
     });
 }

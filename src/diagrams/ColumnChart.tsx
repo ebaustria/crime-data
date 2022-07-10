@@ -3,13 +3,12 @@ import Highcharts, { chart } from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 import "../styles/diagrams.css";
 import { CrimeCategoryColors } from "../models/colors"
+import {getPieChart, getRadarChart} from "../utils/charts";
 
 interface Props {
     year: number;
     chartData: any;
 }
-
-console.log(CrimeCategoryColors);
 
 const ColumnChart = (props: Props) => {
     const { year, chartData } = props;
@@ -100,27 +99,21 @@ const ColumnChart = (props: Props) => {
 
 // ---------------------------------------------------
 
-let getPieChart = function() {
-    let pie_chart_index = -1;
-
-    Highcharts.charts.forEach((chart, index) => {
-        if (chart !== undefined) {
-            let container: any = chart?.container;
-            while (!container?.classList.contains('chart-container')) container = container.parentNode;
-            if (container.classList.contains('pie-chart')) pie_chart_index = index;
-
-        }
-    });
-    if (pie_chart_index === -1) return null;
-    return Highcharts.charts[pie_chart_index];
-}
-
 let highlightFunction = function(point: any) {
     const clicked_category = point.category;
     const pie_chart = getPieChart();
+    const radarChart = getRadarChart();
 
-    if (pie_chart == null) return ;
+    if (pie_chart === null || radarChart === null) return;
 
+    radarChart?.series[0].points.forEach(point => {
+        if (point.name === clicked_category) {
+            point.setState('hover');
+            point.series.chart.tooltip.refresh(point);
+        } else {
+            point.setState('inactive');
+        }
+    });
     pie_chart?.series[0].points.forEach(point => {
         if (point.name === clicked_category) {
             point.setState('hover');
@@ -133,8 +126,12 @@ let highlightFunction = function(point: any) {
 
 let hideFunction = function () {
     const pie_chart = getPieChart();
+    const radarChart = getRadarChart();
 
     pie_chart?.series[0].points.forEach(point => {
+        point.setState('normal');
+    });
+    radarChart?.series[0].points.forEach(point => {
         point.setState('normal');
     });
 }
