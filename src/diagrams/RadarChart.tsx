@@ -1,17 +1,33 @@
 import React, { useEffect, useRef } from "react";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
-import {CrimeStatistics, RawCrimeData} from "../models";
 import { zip } from "../utils";
 import "../styles/diagrams.css";
+import {blueGreen} from "../models/colors";
 
 interface Props {
-    chartData: (RawCrimeData | CrimeStatistics)[];
+    year: number;
+    chartData: any;
 }
 
 const RadarChart = (props: Props) => {
-    const { chartData } = props;
+    const { chartData, year } = props;
     const radarChartRef = useRef<HighchartsReact.RefObject>(null);
+    const chart_data: any = {
+        categories: [],
+        data: []
+    };
+
+    if (chartData !== undefined) {
+        chartData[year].forEach((element: any) => {
+            chart_data.categories.push(element['Straftat']);
+            chart_data.data.push(
+                {
+                    y: parseInt(element['Anzahl erfasster Fälle']),
+                }
+            );
+        });
+    }
 
     useEffect(() => {
         if (radarChartRef.current) {
@@ -22,22 +38,14 @@ const RadarChart = (props: Props) => {
         }
     }, []);
 
-    // @ts-ignore
-    if (chartData.includes(undefined)) {
-        return null;
-    }
-
     const options: Highcharts.Options = {
         chart: {
-            polar: true
+            polar: true,
+            zoomType: "xy",
         },
 
         title: {
-            text: 'Highcharts Polar Chart'
-        },
-
-        subtitle: {
-            text: 'Also known as Radar Chart'
+            text: `Crime by Category, ${year}`
         },
 
         pane: {
@@ -46,7 +54,8 @@ const RadarChart = (props: Props) => {
         },
 
         xAxis: {
-            tickInterval: 45,
+            // categories: chart_data.categories,
+            tickInterval: 36,
             min: 0,
             max: 360,
             labels: {
@@ -61,7 +70,7 @@ const RadarChart = (props: Props) => {
         plotOptions: {
             series: {
                 pointStart: 0,
-                pointInterval: 45
+                pointInterval: 36,
             },
             column: {
                 pointPadding: 0,
@@ -69,20 +78,14 @@ const RadarChart = (props: Props) => {
             }
         },
 
-        series: [{
-            type: 'column',
-            name: 'Column',
-            data: [8, 7, 6, 5, 4, 3, 2, 1],
-            pointPlacement: 'between'
-        }, {
-            type: 'line',
-            name: 'Line',
-            data: [1, 2, 3, 4, 5, 6, 7, 8]
-        }, {
-            type: 'area',
-            name: 'Area',
-            data: [1, 8, 2, 7, 3, 6, 4, 5]
-        }]
+        series: [
+            {
+                type: 'column',
+                name: 'Column',
+                data: chart_data.data,
+                color: blueGreen,
+            },
+        ],
     }
 
     return (

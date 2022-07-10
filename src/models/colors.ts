@@ -9,6 +9,8 @@
 //     [7, '#7d1711']
 // ];
 
+export const blueGreen = "#00886c";
+
 export const RedPalette = [
     [0, '#ffb9ba'],
     [1, '#fc8588'],
@@ -30,13 +32,13 @@ export const GreenPalette = [
 export const BarChartPalette = {
     "2020": "#00442e",
     "2019": "#00654b",
-    "2018": "#00886c",
+    "2018": blueGreen,
     "2017": "#06ac8e",
     "2016": "#42d0b0",
 }
 
 export const LineGraphPalette = {
-    total: "#00886c",
+    total: blueGreen,
     solved: "#5d4c4c",
     suspects: "#5c00a3",
 }
