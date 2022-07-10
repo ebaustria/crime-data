@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from "react";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 import { CrimeStatistics } from "../models";
-import { zip } from "../utils";
+import { zip } from "../utils/general";
 import "../styles/diagrams.css";
 import { cardClasses } from "@mui/material";
 

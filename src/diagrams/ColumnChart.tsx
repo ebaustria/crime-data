@@ -1,9 +1,9 @@
 import React, { useEffect, useRef } from "react";
-import Highcharts, { chart } from "highcharts";
+import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 import "../styles/diagrams.css";
 import { CrimeCategoryColors } from "../models/colors"
-import {getPieChart, getRadarChart} from "../utils/charts";
+import {getPieChart, getRadarChart, highlightPoint} from "../utils/charts";
 
 interface Props {
     year: number;
@@ -18,7 +18,7 @@ const ColumnChart = (props: Props) => {
         data: []
     };
 
-    if (chartData != undefined) {
+    if (chartData !== undefined) {
         chartData[year].forEach((element: any) => {
             chart_data.categories.push(element['Straftat']);
             chart_data.data.push(
@@ -106,22 +106,8 @@ let highlightFunction = function(point: any) {
 
     if (pie_chart === null || radarChart === null) return;
 
-    radarChart?.series[0].points.forEach(point => {
-        if (point.name === clicked_category) {
-            point.setState('hover');
-            point.series.chart.tooltip.refresh(point);
-        } else {
-            point.setState('inactive');
-        }
-    });
-    pie_chart?.series[0].points.forEach(point => {
-        if (point.name === clicked_category) {
-            point.setState('hover');
-            point.series.chart.tooltip.refresh(point);
-        } else {
-            point.setState('inactive');
-        }
-    });
+    highlightPoint(radarChart, clicked_category, true);
+    highlightPoint(pie_chart, clicked_category, true);
 };
 
 let hideFunction = function () {

@@ -7,7 +7,7 @@ import {
     getDataLayer,
     getNationalCrimeData, updateLocalPercentiles,
     updateNationalPercentiles,
-} from "./utils";
+} from "./utils/general";
 import { RawCrimeData, SelectMenuData, YearlyData } from "./models";
 import StatisticSelect from "./components/StatisticSelect";
 import YearSlider from "./components/YearSlider";
@@ -107,7 +107,7 @@ function App() {
             header: true,
             download: true,
             complete: function(results) {
-                var data: any = {};
+                const data: any = {};
                 results.data.forEach((element: any) => {
                     if (data.hasOwnProperty(element['Jahr'])) {
                         data[element['Jahr']].push(element);
@@ -276,19 +276,13 @@ function App() {
             <div className="right-container">
                 <div className="grid-cell">
                     {years[0] === years[1]
-                        ? <PieChart
-                            year={ years[0] }
-                            chartData={ bkaData }
-                        />
-                        : <AreaChart chartData={[]} years={[]}/>
+                        ? <PieChart year={years[0]} chartData={bkaData} />
+                        : <AreaChart chartData={[]} years={[]} />
                     }
                 </div>
                 <div className="grid-cell">
                     {years[0] === years[1] &&
-                        <ColumnChart
-                            year={ years[0] }
-                            chartData={ bkaData }
-                        />
+                        <ColumnChart year={years[0]} chartData={bkaData} />
                     }
                 </div>
                 <div className="grid-cell">

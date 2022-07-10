@@ -3,7 +3,7 @@ import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 import "../styles/diagrams.css";
 import {blueGreen} from "../models/colors";
-import {getColumnChart, getPieChart} from "../utils/charts";
+import {getColumnChart, getPieChart, highlightPoint} from "../utils/charts";
 
 interface Props {
     year: number;
@@ -39,7 +39,7 @@ const RadarChart = (props: Props) => {
         }
     }, []);
 
-    const mapDegreesToCategory = (degrees: string | number) => {
+    const mapDegreesToCategory = (degrees: string | number): string => {
         switch (degrees) {
             case 0:
                 return chart_data.categories[0];
@@ -139,22 +139,8 @@ const RadarChart = (props: Props) => {
         const pie_chart = getPieChart();
         if (column_chart === null || pie_chart === null) return;
 
-        column_chart?.series[0].points.forEach(point => {
-            if (point.category === clicked_category) {
-                point.setState('hover');
-                point.series.chart.tooltip.refresh(point);
-            } else {
-                point.setState('inactive');
-            }
-        });
-        pie_chart?.series[0].points.forEach(point => {
-            if (point.name === clicked_category) {
-                point.setState('hover');
-                point.series.chart.tooltip.refresh(point);
-            } else {
-                point.setState('inactive');
-            }
-        });
+        highlightPoint(column_chart, clicked_category, false);
+        highlightPoint(pie_chart, clicked_category, true);
     };
 
     const hideFunction = function () {

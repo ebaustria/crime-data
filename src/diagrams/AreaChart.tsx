@@ -2,7 +2,6 @@ import React, { useEffect, useRef } from "react";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 import { CrimeStatistics } from "../models";
-import { zip } from "../utils";
 import "../styles/diagrams.css";
 
 interface Props {

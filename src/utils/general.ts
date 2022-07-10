@@ -2,10 +2,10 @@ import { range } from 'd3-array';
 import { scaleQuantile } from 'd3-scale';
 
 import type GeoJSON from 'geojson';
-import {CrimeStatistics, NationalCrime, NeighborhoodCrime, RawCrimeData, YearlyData} from "./models";
+import {CrimeStatistics, NationalCrime, NeighborhoodCrime, RawCrimeData, YearlyData} from "../models";
 import {FillLayer} from "react-map-gl";
-import {GreenPalette, RedPalette} from "./models/colors";
-import { states } from './models/places';
+import {GreenPalette, RedPalette} from "../models/colors";
+import { states } from '../models/places';
 
 /** Calculates percentiles of administrative districts (neighborhoods, city districts, etc.) for a given crime
  * statistic. */

@@ -44,3 +44,15 @@ export const getRadarChart = () => {
     if (radarIndex === -1) return null;
     return Highcharts.charts[radarIndex];
 }
+
+export const highlightPoint = (chart: Highcharts.Chart | undefined, hoveredCategory: string, byName: boolean) => {
+    chart?.series[0].points.forEach(point => {
+        const comparator = byName ? point.name : point.category;
+        if (comparator === hoveredCategory) {
+            point.setState('hover');
+            point.series.chart.tooltip.refresh(point);
+        } else {
+            point.setState('inactive');
+        }
+    });
+}
