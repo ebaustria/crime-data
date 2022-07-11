@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from "react";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 import "../styles/diagrams.css";
-import {blueGreen} from "../models/colors";
+import {blueGreen, CrimeCategoryColors} from "../models/colors";
 import {getColumnChart, getPieChart, highlightPoint} from "../utils/charts";
 
 interface Props {
@@ -25,6 +25,7 @@ const RadarChart = (props: Props) => {
                 {
                     name: element['Straftat'],
                     y: parseInt(element['Anzahl erfasster Fälle']),
+                    color: CrimeCategoryColors[element['Straftat']]
                 }
             );
         });
