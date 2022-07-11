@@ -1,17 +1,46 @@
 import React, { useEffect, useRef } from "react";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
-import { CrimeStatistics } from "../models";
+import { CrimeCategoryColors } from "../models/colors"
 import "../styles/diagrams.css";
 
 interface Props {
-    chartData: CrimeStatistics[];
+    chartData: any;
     years: number[];
 }
 
 const AreaChart = (props: Props) => {
     const { chartData, years } = props;
     const AreaChartRef = useRef<HighchartsReact.RefObject>(null);
+    var crimes_cases: any = {};
+    var crime_categories: any = [];
+    var chart_data: any = {
+        categories: [],
+        data: []
+    };
+    
+    chartData[years[0]].forEach((crime: any) => {
+        crime_categories.push(crime['Straftat']);
+        crimes_cases[crime['Straftat']] = [];
+    });
+    
+    for (var i: number = years[0]; i <= years[1]; i++) {
+        chart_data.categories.push(`${i}`);
+        chartData[i].forEach((crime: any) => {
+            crimes_cases[crime['Straftat']].push(parseInt(crime['Anzahl erfasster Fälle']));
+        });
+    }
+
+    for (const [crime, cases] of Object.entries(crimes_cases)) {
+        chart_data.data.push({
+            name: crime,
+            type: 'area',
+            data: cases,
+            color: CrimeCategoryColors[crime]
+        });    
+    }
+
+    console.log(chart_data);
 
     const options: Highcharts.Options = {
         chart: {
@@ -21,14 +50,7 @@ const AreaChart = (props: Props) => {
             text: 'Area Chart Title'
         },
         xAxis: {
-            categories: [
-                '2015', 
-                '2016', 
-                '2017', 
-                '2018', 
-                '2019', 
-                '2020'
-            ]
+            categories: chart_data.categories
         },
         yAxis: {
             title: {
@@ -54,57 +76,7 @@ const AreaChart = (props: Props) => {
                 }
             }
         },
-        series: [{
-            name: 'Vergewaltigung, sexuelle Nötigung und sexueller Übergriff',
-            type: 'area',
-            data: [11, 14, 9, 13, 12, 7],
-            color: '#ce7e2b', 
-        }, {
-            name: 'Raub, räuberische Erpressung und räuberischer Angriff',
-            type: 'area',
-            data: [583, 635, 809, 678, 788, 852],
-            color: '#247672' 
-        }, {
-            name: 'Körperverletzung',
-            type: 'area',
-            data: [2871, 3521, 2457, 3214, 2500, 2321],
-            color: '#633d30'
-        }, {
-            name: 'Diebstahl',
-            type: 'area',
-            data: [26940, 26541, 24940, 28540, 26940, 25412],
-            color: '#338821'
-        }, {
-            name: 'Betrug',
-            type: 'area',
-            data: [11165, 12456, 13452, 12456, 13214, 13212],
-            color: '#a1d832'
-        }, {
-            name: 'Sachbeschädigung',
-            type: 'area',
-            data: [4839, 5215, 3214, 4839, 4939, 4571],
-            color: '#a1def0'
-        }, {
-            name: 'Rauschgiftdelikte',
-            type: 'area',
-            data: [1993, 2152, 1857, 1877, 2231, 1993],
-            color: '#f3d426'
-        }, {
-            name: 'Mord, Totschlag und Tötung auf Verlangen',
-            type: 'area',
-            data: [19, 23, 17, 15, 19, 18],
-            color: '#a21636'
-        }, {
-            name: 'Cybercrime',
-            type: 'area',
-            data: [560, 635, 589, 535, 668, 754],
-            color: '#ff0087'
-        }, {
-            name: 'Straßenkriminalität',
-            type: 'area',
-            data: [12320, 13260, 12457, 12456, 13251, 12320],
-            color: '#dd9a9a'
-        }]
+        series: chart_data.data
     }
 
     useEffect(() => {

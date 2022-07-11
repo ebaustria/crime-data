@@ -94,15 +94,6 @@ function App() {
     }, [showLocalView, zoom]);
 
     const fetchBkaData = () => {
-
-        // Papa.parse(`https://raw.githubusercontent.com/ebaustria/crime-data/main/data/BKA_DD_2018.csv`, {
-        //     header: true,
-        //     download: true,
-        //     complete: function(results) {
-        //         console.log(results.data);
-        //     }
-        // });
-
         Papa.parse(`https://raw.githubusercontent.com/ebaustria/crime-data/main/data/BKA_DD_all_years.csv`, {
             header: true,
             download: true,
@@ -277,7 +268,7 @@ function App() {
                 <div className="grid-cell">
                     {years[0] === years[1]
                         ? <PieChart year={years[0]} chartData={bkaData} />
-                        : <AreaChart chartData={[]} years={[]} />
+                        : <AreaChart years={years} chartData={bkaData} />
                     }
                 </div>
                 <div className="grid-cell">
