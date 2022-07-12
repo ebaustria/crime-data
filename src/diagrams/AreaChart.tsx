@@ -1,16 +1,18 @@
 import React, { useEffect, useRef } from "react";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
-import { CrimeCategoryColors } from "../models/colors"
+import { CrimeCategoryColors } from "../models/colors";
+import { ChartSelected } from "../models/selectedStatHelp";
 import "../styles/diagrams.css";
 
 interface Props {
     chartData: any;
     years: number[];
+    selectedStat: any;
 }
 
 const AreaChart = (props: Props) => {
-    const { chartData, years } = props;
+    const { chartData, years, selectedStat } = props;
     const AreaChartRef = useRef<HighchartsReact.RefObject>(null);
     var crimes_cases: any = {};
     var crime_categories: any = [];
@@ -18,6 +20,9 @@ const AreaChart = (props: Props) => {
         categories: [],
         data: []
     };
+    var chart_selected: any = {};
+    if (ChartSelected.hasOwnProperty(selectedStat.value)) chart_selected = ChartSelected[selectedStat.value];
+    else chart_selected = ChartSelected['totalCases'];
     
     chartData[years[0]].forEach((crime: any) => {
         crime_categories.push(crime['Straftat']);
@@ -27,7 +32,7 @@ const AreaChart = (props: Props) => {
     for (var i: number = years[0]; i <= years[1]; i++) {
         chart_data.categories.push(`${i}`);
         chartData[i].forEach((crime: any) => {
-            crimes_cases[crime['Straftat']].push(parseInt(crime['Anzahl erfasster Fälle']));
+            crimes_cases[crime['Straftat']].push(parseInt(crime[chart_selected.access_data]));
         });
     }
 
@@ -40,14 +45,12 @@ const AreaChart = (props: Props) => {
         });    
     }
 
-    console.log(chart_data);
-
     const options: Highcharts.Options = {
         chart: {
             type: 'area'
         },
         title: {
-            text: 'Area Chart Title'
+            text: `${chart_selected.title} ${years[0]} - ${years[1]}`
         },
         xAxis: {
             categories: chart_data.categories
@@ -58,9 +61,9 @@ const AreaChart = (props: Props) => {
             }
         },
         tooltip: {        
-            headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
-            pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-                        '<td style="padding:0"><b>{point.y:.1f} cases</b></td></tr>',
+            headerFormat: '<span>{point.key}</span><table>',
+            pointFormat: `<tr><td style="color:{series.color};padding:0">{series.name}: </td>
+                        <td style="padding:0"><b>{point.y} ${chart_selected.tooltip_label}</b></td></tr>`,
             footerFormat: '</table>',
             shared: true,
             useHTML: true
