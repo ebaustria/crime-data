@@ -267,18 +267,18 @@ function App() {
             <div className="right-container">
                 <div className="grid-cell">
                     {years[0] === years[1]
-                        ? <PieChart year={years[0]} chartData={bkaData} />
+                        ? <PieChart year={years[0]} chartData={bkaData} selectedStat={selectedStat}/>
                         : <AreaChart years={years} chartData={bkaData} />
                     }
                 </div>
                 <div className="grid-cell">
                     {years[0] === years[1] &&
-                        <ColumnChart year={years[0]} chartData={bkaData} />
+                        <ColumnChart year={years[0]} chartData={bkaData} selectedStat={selectedStat}/>
                     }
                 </div>
                 <div className="grid-cell">
                     {years[0] === years[1] &&
-                        <RadarChart chartData={bkaData} year={years[0]} />
+                        <RadarChart chartData={bkaData} year={years[0]} selectedStat={selectedStat}/>
                     }
                 </div>
             </div>

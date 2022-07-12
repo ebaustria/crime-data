@@ -2,28 +2,33 @@ import React, { useEffect, useRef } from "react";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 import "../styles/diagrams.css";
-import { CrimeCategoryColors } from "../models/colors"
+import { CrimeCategoryColors } from "../models/colors";
+import { ChartSelected } from "../models/selectedStatHelp";
 import {getPieChart, getRadarChart, highlightPoint} from "../utils/charts";
 
 interface Props {
     year: number;
     chartData: any;
+    selectedStat: any;
 }
 
 const ColumnChart = (props: Props) => {
-    const { year, chartData } = props;
+    const { year, chartData, selectedStat } = props;
     const ColumnChartRef = useRef<HighchartsReact.RefObject>(null);
     var chart_data: any = {
         categories: [],
         data: []
     };
+    var chart_selected: any = {};
+    if (ChartSelected.hasOwnProperty(selectedStat.value)) chart_selected = ChartSelected[selectedStat.value];
+    else chart_selected = ChartSelected['totalCases'];
 
     if (chartData !== undefined) {
         chartData[year].forEach((element: any) => {
             chart_data.categories.push(element['Straftat']);
             chart_data.data.push(
                 {
-                    y: parseInt(element['Anzahl erfasster Fälle']),
+                    y: parseInt(element[chart_selected.access_data]),
                     color: CrimeCategoryColors[element['Straftat']]
                 }
             );
@@ -36,7 +41,7 @@ const ColumnChart = (props: Props) => {
             zoomType: "y"
         },
         title: {
-            text: `Column Chart Title ${year}`
+            text: `${chart_selected.title} ${year} `
         },
         xAxis: {
             categories: chart_data.categories,
@@ -49,9 +54,8 @@ const ColumnChart = (props: Props) => {
             }
         },
         tooltip: {
-            headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
-            pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-                '<td style="padding:0"><b>{point.y} cases</b></td></tr>',
+            headerFormat: `<span>{point.key}</span><table>`,
+            pointFormat: `<tr><td style="padding:0"><b>{point.y} ${chart_selected.tooltip_label}</b></td></tr>`,
             footerFormat: '</table>',
             shared: true,
             useHTML: true

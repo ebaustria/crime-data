@@ -2,23 +2,28 @@ import React, { useEffect, useRef } from "react";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 import "../styles/diagrams.css";
-import { CrimeCategoryColors } from "../models/colors"
+import { CrimeCategoryColors } from "../models/colors";
+import { ChartSelected } from "../models/selectedStatHelp";
 import {getColumnChart, getRadarChart, highlightPoint} from "../utils/charts";
 
 interface Props {
     year: number;
     chartData: any;
+    selectedStat: any;
 }     
 
 const PieChart = (props: Props) => {
-    const { year, chartData } = props;
+    const { year, chartData, selectedStat } = props;
     const PieChartRef = useRef<HighchartsReact.RefObject>(null);
     var chart_data: any = [];
+    var chart_selected: any = {};
+    if (ChartSelected.hasOwnProperty(selectedStat.value)) chart_selected = ChartSelected[selectedStat.value];
+    else chart_selected = ChartSelected['totalCases'];
 
     if (chartData !== undefined) {
         chartData[year].forEach((element: any) => {
             chart_data.push({
-                y: parseInt(element['Anzahl erfasster Fälle']),
+                y: parseInt(element[chart_selected.access_data]),
                 name: element['Straftat'],
                 color: CrimeCategoryColors[element['Straftat']]
             });
@@ -30,13 +35,12 @@ const PieChart = (props: Props) => {
             type: 'pie'
         },
         title: {
-            text: 'Pie Chart Title'
+            text: `${chart_selected.title} ${year} `
         },
         
         tooltip: {        
-            headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
-            pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-                        '<td style="padding:0"><b>{point.y} cases</b></td></tr>',
+            headerFormat: `<span>{point.key}</span><table>`,
+            pointFormat: `<tr><td style="padding:0"><b>{point.y} ${chart_selected.tooltip_label}</b></td></tr>`,
             footerFormat: '</table>',
             shared: true,
             useHTML: true
