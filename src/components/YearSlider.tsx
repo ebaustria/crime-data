@@ -22,6 +22,17 @@ const YearSlider = (props: Props) => {
     return (
         <Slider
             className="year-slider"
+            sx={{
+                height: 15,
+               '& .MuiSlider-thumb': {
+                    height: 40,
+                    width: 40,},
+                '& .MuiSlider-markLabel': {
+                        padding: 3,
+                        'font-size': 20},
+                '& .MuiSlider-root': {
+                        padding: 13},
+                }}
             getAriaLabel={() => 'Years'}
             disableSwap
             value={selectedStrings}
