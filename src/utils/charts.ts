@@ -1,4 +1,5 @@
 import Highcharts from "highcharts";
+import {YearlyData} from "../models";
 
 export const getColumnChart = () => {
     let pie_chart_index = -1;
@@ -55,4 +56,23 @@ export const highlightPoint = (chart: Highcharts.Chart | undefined, hoveredCateg
             point.setState('inactive');
         }
     });
+}
+
+export const parseLocalBarChartData = (yearlyData: YearlyData): YearlyData | null => {
+    let data: YearlyData = {};
+
+    if (!yearlyData) {
+        return null;
+    }
+
+    Object.keys(yearlyData).forEach(year => {
+        data[year] = {};
+        Object.keys(yearlyData[year]).forEach(zone => {
+            if (zone.includes("StB ")) {
+                data[year][zone.replace(/\d/, "").replace("StB  ", "")] = yearlyData[year][zone];
+            }
+        });
+    });
+
+    return data;
 }

@@ -21,7 +21,6 @@ const PercChart = (props: Props) => {
     if (chartData != undefined) {
         for (var i = years[0]; i <= years[1]; i++) {
             chartData[i].forEach((crime: any) => {
-                console.log(crime);
                 sum_firearm += parseInt(crime['mit Schusswaffe gedroht']) + parseInt(crime['mit Schusswaffe geschossen']);
                 sum_firearm_used += parseInt(crime['mit Schusswaffe geschossen']);
             });

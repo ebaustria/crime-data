@@ -16,3 +16,16 @@ export const states = [
     "Saarland",
     "Bremen"
 ];
+
+export const districts = [
+    'Altstadt',
+    'Neustadt',
+    'Pieschen',
+    'Klotzsche/nördliche Ortschaften',
+    'Loschwitz/OS Schönfeld-Weißig',
+    'Blasewitz',
+    'Leuben',
+    'Prohlis',
+    'Plauen',
+    'Cotta/westliche Ortschaften',
+];

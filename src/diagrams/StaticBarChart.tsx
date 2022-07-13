@@ -1,18 +1,24 @@
 import React, { useEffect, useRef } from "react";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
-import { CrimeStatistics } from "../models";
+import {CrimeStatistics, RawCrimeData, YearlyData} from "../models";
 import "../styles/diagrams.css";
 import { BarChartPalette } from "../models/colors";
+import {districts} from "../models/places";
 
 interface Props {
-    chartData: CrimeStatistics[];
+    chartData: YearlyData;
     years: number[];
 }
 
 const StaticBarChart = (props: Props) => {
     const { chartData, years } = props;
     const staticBarChartRef = useRef<HighchartsReact.RefObject>(null);
+
+    const data = (year: string) => {
+        const dataForYear = chartData[year];
+        return districts.map(district => parseInt(dataForYear[district].totalCases));
+    }
 
     const options: Highcharts.Options = {
         chart: {
@@ -24,19 +30,7 @@ const StaticBarChart = (props: Props) => {
         },
     
         xAxis: {
-            categories: [
-                'Altstadt',
-                'Neustadt',
-                'Pieschen',
-                'Klotzsche/nördliche Ortschaften',
-                'Loschwitz/OS Schönfeld-Weißig',
-                'Blasewitz',
-                'Leuben',
-                'Prohlis',
-                'Plauen',
-                'Cotta/westliche Ortschaften',
-                'unbekannt'
-            ],
+            categories: districts,
             crosshair: true
         },
     
@@ -48,34 +42,34 @@ const StaticBarChart = (props: Props) => {
     
         series: [
             {
-                name: '2020',
+                name: years[0].toString(),
                 type: 'column',
-                data: [11980, 7003, 3809, 1068, 973, 4005, 1825, 3966, 3322, 6294, 4684],
-                color: BarChartPalette["2020"],
+                data: data("2016"),
+                color: BarChartPalette["2016"],
             },
             {
-                name: '2019',
+                name: years[1].toString(),
                 type: 'column',
-                data: [12390, 6938, 3450, 1138, 746, 4083, 1698, 3914, 2962, 5669, 3388],
-                color: BarChartPalette["2019"],
-            },
-            {
-                name: '2018',
-                type: 'column',
-                data: [14215, 7935, 3477, 976, 803, 3813, 1578, 3971, 3270, 5081, 4033],
-                color: BarChartPalette["2018"],
-            },
-            {
-                name: '2017',
-                type: 'column',
-                data: [14116, 8700, 4205, 1048, 978, 2865, 1725, 4461, 3888, 5321, 5503],
+                data: data("2017"),
                 color: BarChartPalette["2017"],
             },
             {
-                name: '2016',
+                name: years[2].toString(),
                 type: 'column',
-                data: [15946, 8713, 4518, 1283, 1049, 4799, 1821, 4865, 3980, 6386, 5300],
-                color: BarChartPalette["2016"],
+                data: data("2018"),
+                color: BarChartPalette["2018"],
+            },
+            {
+                name: years[3].toString(),
+                type: 'column',
+                data: data("2019"),
+                color: BarChartPalette["2019"],
+            },
+            {
+                name: years[4].toString(),
+                type: 'column',
+                data: data("2020"),
+                color: BarChartPalette["2020"],
             }
         ],
     

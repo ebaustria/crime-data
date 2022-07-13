@@ -8,6 +8,7 @@ import {
     getNationalCrimeData, updateLocalPercentiles,
     updateNationalPercentiles,
 } from "./utils/general";
+import { parseLocalBarChartData } from "./utils/charts";
 import { RawCrimeData, SelectMenuData, YearlyData } from "./models";
 import StatisticSelect from "./components/StatisticSelect";
 import YearSlider from "./components/YearSlider";
@@ -209,7 +210,12 @@ function App() {
     return (
         <div className="app-container">
             <div className="left-container">
-                <StaticBarChart chartData={[]} years={[]}/>
+                {yearlyData &&
+                    <StaticBarChart
+                        chartData={parseLocalBarChartData(yearlyData)!}
+                        years={Object.keys(yearlyData).map(year => parseInt(year))}
+                    />
+                }
 
                 <div className="placeholder">density plot</div>
 
