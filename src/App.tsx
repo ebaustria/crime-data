@@ -18,7 +18,8 @@ import AreaChart from "./diagrams/AreaChart";
 import PieChart from "./diagrams/PieChart";
 import {LocalStatistics, NationalStatistics} from "./models/statistics";
 import {SelectChangeEvent} from "@mui/material";
-import PercChart from "./diagrams/PercChart";
+import PercChartSuspects from "./diagrams/PercChartSuspects";
+import PercChartFirearm from "./diagrams/PercChartFirearm";
 import ColumnChart from "./diagrams/ColumnChart";
 import RadarChart from "./diagrams/RadarChart";
 import Highcharts from "highcharts";
@@ -261,8 +262,9 @@ function App() {
                         }}
                         selectedStrings={years}
                     />
+                    <PercChartSuspects years={years} chartData={bkaData} selectedStat={selectedStat}/>
+                    <PercChartFirearm years={years} chartData={bkaData} selectedStat={selectedStat}/>
 
-                    <PercChart chartData={[]} years={[]}/>
             </div>
             <div className="right-container">
                 <div className="grid-cell">

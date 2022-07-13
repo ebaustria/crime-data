@@ -7,13 +7,26 @@ import "../styles/diagrams.css";
 import { cardClasses } from "@mui/material";
 
 interface Props {
-    chartData: CrimeStatistics[];
+    chartData: any;
     years: number[];
+    selectedStat: any;
 }     
 
 const PercChart = (props: Props) => {
-    const { chartData, years } = props;
+    const { chartData, years, selectedStat } = props;
     const PercChartRef = useRef<HighchartsReact.RefObject>(null);
+    var sum_firearm: number = 0;
+    var sum_firearm_used: number = 0;
+
+    if (chartData != undefined) {
+        for (var i = years[0]; i <= years[1]; i++) {
+            chartData[i].forEach((crime: any) => {
+                console.log(crime);
+                sum_firearm += parseInt(crime['mit Schusswaffe gedroht']) + parseInt(crime['mit Schusswaffe geschossen']);
+                sum_firearm_used += parseInt(crime['mit Schusswaffe geschossen']);
+            });
+        }
+    }
 
     const options: Highcharts.Options = {
         chart: {
@@ -23,7 +36,7 @@ const PercChart = (props: Props) => {
             text: 'Percentage Column Chart Title'
         },
         xAxis: {
-            categories: ['Suspects', 'Firearmed']
+            categories: ['Firearm']
         },
         yAxis: {
             min: 0,
@@ -32,7 +45,7 @@ const PercChart = (props: Props) => {
             }
         },
         tooltip: {        
-            headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+            headerFormat: '<span>{point.key}</span><table>',
             pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
                         '<td style="padding:0"><b>({point.percentage:.0f}%)</b></td></tr>',
             footerFormat: '</table>',
@@ -45,13 +58,13 @@ const PercChart = (props: Props) => {
             }
         },
         series: [{
-            name: 'male',
-            data: [5, 3],
+            name: 'firearm involved (at least threaten)',
+            data: [sum_firearm],
             color: '#00886c',
             type: 'bar'
         }, {
-            name: 'female',
-            data: [2, 2],
+            name: 'firearm actually used',
+            data: [sum_firearm_used],
             color: '#5D4C4C',
             type: 'bar'
         }]
