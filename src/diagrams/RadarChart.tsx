@@ -29,7 +29,7 @@ const RadarChart = (props: Props) => {
             chart_data.data.push(
                 {
                     name: element['Straftat'],
-                    y: parseInt(element[chart_selected.access_data]),
+                    y: parseInt(element['Aufklärungsqoute']),
                     color: CrimeCategoryColors[element['Straftat']]
                 }
             );
@@ -77,7 +77,7 @@ const RadarChart = (props: Props) => {
         },
 
         title: {
-            text: `${chart_selected.title} by Category, ${year}`
+            text: `Clearance Rate by Category, ${year}`
         },
 
         pane: {
@@ -100,7 +100,7 @@ const RadarChart = (props: Props) => {
 
         tooltip: {
             headerFormat: `<span>{point.key}</span><table>`,
-            pointFormat: `<tr><td style="padding:0"><b>{point.y} ${chart_selected.tooltip_label}</b></td></tr>`,
+            pointFormat: `<tr><td style="padding:0"><b>{point.y}% of the recorded cases were solved</b></td></tr>`,
             footerFormat: '</table>',
             shared: true,
             useHTML: true,
