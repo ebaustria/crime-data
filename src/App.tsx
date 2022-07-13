@@ -212,8 +212,8 @@ function App() {
             <div className="left-container">
                 {yearlyData &&
                     <StaticBarChart
-                        chartData={parseLocalBarChartData(yearlyData)!}
-                        years={Object.keys(yearlyData).map(year => parseInt(year))}
+                        chartData={showLocalView ? parseLocalBarChartData(yearlyData)! : yearlyData!}
+                        years={Object.keys(yearlyData)}
                     />
                 }
 

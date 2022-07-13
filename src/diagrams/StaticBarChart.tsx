@@ -1,24 +1,46 @@
 import React, { useEffect, useRef } from "react";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
-import {CrimeStatistics, RawCrimeData, YearlyData} from "../models";
+import {NationalCrime, YearlyData} from "../models";
 import "../styles/diagrams.css";
-import { BarChartPalette } from "../models/colors";
-import {districts} from "../models/places";
+import {BarChartPalette} from "../models/colors";
+import {districts, states} from "../models/places";
 
 interface Props {
     chartData: YearlyData;
-    years: number[];
+    years: string[];
 }
 
 const StaticBarChart = (props: Props) => {
     const { chartData, years } = props;
     const staticBarChartRef = useRef<HighchartsReact.RefObject>(null);
+    const nationalView = years.length < 4;
 
-    const data = (year: string) => {
+    const data = (year: string): number[] => {
         const dataForYear = chartData[year];
+        if (nationalView) {
+            const total = (dataForYear as NationalCrime)["Total"];
+            if (total) {
+                return states.map(state => parseInt(total[state]));
+            }
+            return [];
+        }
         return districts.map(district => parseInt(dataForYear[district].totalCases));
     }
+
+    const parseData = (): Highcharts.SeriesOptionsType[] => {
+        return (
+            years.map(year => {
+                return ({
+                    name: year,
+                    type: 'column',
+                    data: data(year),
+                    // @ts-ignore
+                    color: BarChartPalette[year],
+                });
+            })
+        );
+    };
 
     const options: Highcharts.Options = {
         chart: {
@@ -30,7 +52,7 @@ const StaticBarChart = (props: Props) => {
         },
     
         xAxis: {
-            categories: districts,
+            categories: nationalView ? states : districts,
             crosshair: true
         },
     
@@ -40,38 +62,7 @@ const StaticBarChart = (props: Props) => {
             }
         },
     
-        series: [
-            {
-                name: years[0].toString(),
-                type: 'column',
-                data: data("2016"),
-                color: BarChartPalette["2016"],
-            },
-            {
-                name: years[1].toString(),
-                type: 'column',
-                data: data("2017"),
-                color: BarChartPalette["2017"],
-            },
-            {
-                name: years[2].toString(),
-                type: 'column',
-                data: data("2018"),
-                color: BarChartPalette["2018"],
-            },
-            {
-                name: years[3].toString(),
-                type: 'column',
-                data: data("2019"),
-                color: BarChartPalette["2019"],
-            },
-            {
-                name: years[4].toString(),
-                type: 'column',
-                data: data("2020"),
-                color: BarChartPalette["2020"],
-            }
-        ],
+        series: parseData(),
     
         tooltip: {
             headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
