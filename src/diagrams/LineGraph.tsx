@@ -146,7 +146,7 @@ let highlightFunction = function (point: any) {
     const static_bar_chart = getStaticBarChart();
 
     static_bar_chart?.series.forEach((series) => {
-        if (series.name === clicked_category) {
+        if (series.name == clicked_category) {
             series.points.forEach(point => {
                 point.setState('hover');
             });

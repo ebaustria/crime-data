@@ -41,7 +41,7 @@ const ColumnChart = (props: Props) => {
             zoomType: "y"
         },
         title: {
-            text: `Cases in Dresden by Category, ${year}`
+            text: `${chart_selected.title} in Dresden by Category, ${year}`
         },
         xAxis: {
             categories: chart_data.categories,

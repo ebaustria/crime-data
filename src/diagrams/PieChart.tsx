@@ -35,7 +35,7 @@ const PieChart = (props: Props) => {
             type: 'pie'
         },
         title: {
-            text: `Cases in Dresden by Category, ${year}`
+            text: `${chart_selected.title} in Dresden by Category, ${year}`
         },
         
         tooltip: {        
