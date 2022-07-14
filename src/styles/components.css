@@ -24,10 +24,11 @@
 }
 
 .highcharts-legend .highcharts-point{
-    height: 25px;
-    width: 25px;
-    rx: 13px;
-    ry: 13px;
-    x: -8px;
-    y: -4px;
+    height: 20px;
+    width: 20px;
+    rx: 10px;
+    ry: 10px;
+    x: -6px;
+    y: -2px;
 }
+
