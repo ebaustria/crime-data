@@ -50,14 +50,14 @@ const AreaChart = (props: Props) => {
             type: 'area'
         },
         title: {
-            text: `${chart_selected.title} ${years[0]} - ${years[1]}`
+            text: `Cases in Dresden by Category, ${years[0]}-${years[1]}`
         },
         xAxis: {
             categories: chart_data.categories
         },
         yAxis: {
             title: {
-                text: 'Number of cases'
+                text: 'Occurrences'
             }
         },
         tooltip: {        

@@ -32,7 +32,7 @@ const PercChart = (props: Props) => {
             type: 'bar'
         },
         title: {
-            text: 'Percentage Column Chart Title'
+            text: 'Sex of Suspects'
         },
         xAxis: {
             categories: ['Suspects']
@@ -40,7 +40,7 @@ const PercChart = (props: Props) => {
         yAxis: {
             min: 0,
             title: {
-                text: 'Total crimes'
+                text: 'Total Crimes'
             }
         },
         tooltip: {        
@@ -57,12 +57,12 @@ const PercChart = (props: Props) => {
             }
         },
         series: [{
-            name: 'male suspects',
+            name: 'Male',
             data: [sum_male],
             color: '#00886c',
             type: 'bar'
         }, {
-            name: 'female suspects',
+            name: 'Female',
             data: [sum_female],
             color: '#5D4C4C',
             type: 'bar'

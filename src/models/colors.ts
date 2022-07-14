@@ -44,14 +44,14 @@ export const LineGraphPalette = {
 }
 
 export const CrimeCategoryColors: any = { 
-    "rape, sexual assault and sexual attack": "#ce7e2b" ,
-    "robbery and predatory attack": "#247672",
-    "assault": "#633d30" ,
-    "theft": "#338821",
-    "fraud": "#a1d832",
-    "damage to property": "#a1def0",
-    "drug offences": "#f3d426",
-    "homicide and manslaughter": "#a21636",
-    "cybercrime": "#ff0087",
-    "street crimes": "#dd9a9a"
+    "Sexual Assault": "#ce7e2b" ,
+    "Robbery": "#247672",
+    "Assault": "#633d30" ,
+    "Theft": "#338821",
+    "Fraud": "#a1d832",
+    "Property Damage": "#a1def0",
+    "Drug Offenses": "#f3d426",
+    "Homicide and Manslaughter": "#a21636",
+    "Cybercrime": "#ff0087",
+    "Street Crime": "#dd9a9a"
 }

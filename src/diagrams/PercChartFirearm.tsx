@@ -1,10 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
-import { CrimeStatistics } from "../models";
-import { zip } from "../utils/general";
 import "../styles/diagrams.css";
-import { cardClasses } from "@mui/material";
 
 interface Props {
     chartData: any;
@@ -32,7 +29,7 @@ const PercChart = (props: Props) => {
             type: 'bar'
         },
         title: {
-            text: 'Percentage Column Chart Title'
+            text: 'Firearm Use'
         },
         xAxis: {
             categories: ['Firearm']
@@ -40,7 +37,7 @@ const PercChart = (props: Props) => {
         yAxis: {
             min: 0,
             title: {
-                text: 'Total crimes'
+                text: 'Total Crimes'
             }
         },
         tooltip: {        
@@ -57,12 +54,12 @@ const PercChart = (props: Props) => {
             }
         },
         series: [{
-            name: 'firearm involved (at least threaten)',
+            name: 'Firearm Brandished',
             data: [sum_firearm],
             color: '#00886c',
             type: 'bar'
         }, {
-            name: 'firearm actually used',
+            name: 'Firearm Discharged',
             data: [sum_firearm_used],
             color: '#5D4C4C',
             type: 'bar'

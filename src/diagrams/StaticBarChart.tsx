@@ -48,7 +48,7 @@ const StaticBarChart = (props: Props) => {
         },
     
         title: {
-            text: 'number of cases in different neighborhoods'
+            text: nationalView ? "Total Cases by Federal State, 2017-2019" : "Total Cases by District, 2016-2020"
         },
     
         xAxis: {
@@ -58,7 +58,7 @@ const StaticBarChart = (props: Props) => {
     
         yAxis: {
             title: {
-                text: 'Number of cases'
+                text: 'Total Cases'
             }
         },
     

@@ -14,6 +14,7 @@ interface Props {
 const LineGraph = (props: Props) => {
     const { chartData, years } = props;
     const lineChartRef = useRef<HighchartsReact.RefObject>(null);
+    const nationalView = years.length < 4;
 
     useEffect(() => {
         if (lineChartRef.current) {
@@ -30,7 +31,7 @@ const LineGraph = (props: Props) => {
     }
 
     const parseData = (): Highcharts.SeriesOptionsType[] => {
-        if (years.length < 4) {
+        if (nationalView) {
             return ([
                 {
                     name: "Total Cases",
@@ -69,7 +70,7 @@ const LineGraph = (props: Props) => {
             zoomType: "xy"
         },
         title: {
-            text: "Crime Data by Category, 2016-2020",
+            text: nationalView ? "Total Cases in Germany, 2017-2019" : "Crime Data in Dresden, 2016-2020",
             style: { fontSize: "20" },
         },
         yAxis: {

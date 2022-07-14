@@ -41,7 +41,7 @@ const ColumnChart = (props: Props) => {
             zoomType: "y"
         },
         title: {
-            text: `${chart_selected.title} ${year} `
+            text: `Cases in Dresden by Category, ${year}`
         },
         xAxis: {
             categories: chart_data.categories,
@@ -50,7 +50,7 @@ const ColumnChart = (props: Props) => {
         yAxis: {
             min: 0,
             title: {
-                text: 'cases'
+                text: 'Cases'
             }
         },
         tooltip: {
